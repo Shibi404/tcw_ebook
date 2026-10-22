@@ -1,0 +1,2256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PrintPod — Self-service document printing for university campuses</title>
+<meta name="description" content="PrintPod: an academic concept ebook describing a self-service document printing kiosk for university campuses. Skeleton draft.">
+
+<!-- Fonts: Source Serif 4 (body + headings), Inter (captions, labels, UI) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+
+<!-- Apply the saved colour theme before first paint to avoid a flash. -->
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('printpod-theme');
+      if (saved === 'dark' || saved === 'light') {
+        document.documentElement.setAttribute('data-theme', saved);
+      }
+      if (localStorage.getItem('printpod-notes') === 'hidden') {
+        document.documentElement.classList.add('notes-hidden');
+      }
+    } catch (e) { /* localStorage unavailable (private mode, blocked cookies) */ }
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip-link" href="#content">Skip to content</a>
+
+<!-- Reading progress -->
+<div class="progress" aria-hidden="true"><div class="progress__bar" id="progressBar"></div></div>
+
+<!-- Top chrome: drawer trigger + document controls -->
+<header class="chrome">
+  <button type="button" class="chrome__hamburger" id="navToggle" aria-expanded="false" aria-controls="sidebar">
+    <span class="chrome__bars" aria-hidden="true"></span>
+    <span class="chrome__hamburger-text">Contents</span>
+  </button>
+
+  <p class="chrome__running-head" aria-hidden="true">PrintPod</p>
+
+  <div class="chrome__controls">
+    <button type="button" class="chrome__btn" id="notesToggle" aria-pressed="false">Hide guidance notes</button>
+    <button type="button" class="chrome__btn" id="themeToggle" aria-pressed="false">Dark mode</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Table of contents (generated in script.js from the h2/h3 headings) -->
+  <nav class="sidebar" id="sidebar" aria-label="Table of contents">
+    <div class="sidebar__inner">
+      <p class="sidebar__title">Contents</p>
+      <div class="toc" id="toc">
+        <p class="toc__fallback">The table of contents is generated when JavaScript runs. All chapters below are readable without it.</p>
+      </div>
+    </div>
+  </nav>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main class="content" id="content">
+
+    <!-- ============ TITLE PAGE ============ -->
+    <section class="titlepage" id="titlepage">
+      <h1 class="titlepage__title">PrintPod</h1>
+      <p class="titlepage__subtitle">Self-service document printing for university campuses</p>
+      <hr class="rule rule--short">
+      <p class="titlepage__imprint">Technical Content Writing · Amrita Vishwa Vidyapeetham · October 2026</p>
+    </section>
+
+    <!-- ============ FRONT MATTER ============ -->
+    <section class="matter" id="front-matter">
+
+      <section class="matter__item">
+        <h2 class="matter-title">Copyright and disclaimer</h2>
+        <p>© 2026 Team 3. All rights reserved.</p>
+
+        <p>This ebook was produced as an academic project for the Technical Content Writing course at Amrita Vishwa Vidyapeetham.</p>
+
+        <p>PrintPod is a concept product developed for this project. It is not a commercially available system. All specifications, figures, pricing and performance data in this ebook are illustrative and were created to demonstrate technical documentation practice. The case study in Chapter 15 describes a projected scenario, not an actual deployment.</p>
+
+      </section>
+
+      <section class="matter__item">
+        <h2 class="matter-title">Preface</h2>
+        <p>Printing on a university campus still works the way it did twenty years ago. There is a counter, it keeps fixed hours, it takes cash, and a queue forms in front of it an hour before every submission deadline. Almost every other campus transaction has moved to self-service in that time. Printing has not.</p>
+
+        <p>PrintPod is a self-service printing kiosk designed for universities. A student uploads a document, chooses how they want it printed, pays from their phone or campus card, and collects the printout. No counter, no staff, no cash. This ebook describes what the system does, how it is built, and what it takes to run one.</p>
+
+        <p>It is written for two readers. Administrators and facility managers evaluating a self-service printing system will find the case for it in Part 1, the technical and operational detail in Parts 2 and 4, and the costs in Part 5. Students and staff who will use a kiosk need only Chapter 7, a step-by-step guide to printing a document, and the questions answered in Chapter 12.</p>
+
+        <p>The ebook covers what PrintPod is, how it is built, how it is used by students and administrators, how it is deployed and maintained, and what it costs to operate. It does not cover procurement or tendering processes, vendor selection, or any institution's specific IT and data policies. Those vary too widely between institutions to be treated usefully here.</p>
+
+        <p>Read it in order if you are deciding whether to deploy a kiosk. If you already know what PrintPod is and want one answer, use the table of contents. The chapters are self-contained, and where detail is not repeated, a cross-reference points to the chapter that holds it.</p>
+      </section>
+
+    </section>
+
+    <!-- ============ PART 1 ============ -->
+    <section class="part" id="part-1">
+
+      <header class="part-opener">
+        <p class="part-opener__label" aria-hidden="true"></p>
+        <h2 class="part-title">The case</h2>
+        <hr class="rule">
+      </header>
+
+      <!-- ---- Chapter 1 ---- -->
+      <section class="chapter" id="ch-1">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">The campus printing problem</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2–3 sentences framing printing as a recurring, time-critical need on campus, and stating what this chapter will establish — that the current arrangement fails students and costs the institution.]</em></p></aside>
+
+        <section class="sec">
+          <h3>A day in the life of a student deadline</h3>
+          <p>It is 9 p.m., and a second-year student has a report due at 9 a.m. tomorrow. Her instructor wants three printed copies. The library counter closed at six, and the only print shop outside the gate has a queue of students with the same deadline. She stands in line for forty minutes, pays in cash, and waits while the shopkeeper looks for change. Then her file is opened on a shared computer that other people are also using.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Where the current system breaks down</h3>
+          <ul>
+            <li><strong>Limited operating hours.</strong> Library and department counters close in the evening, but deadlines and late-night study do not.</li>
+            <li><strong>Queues at peak times.</strong> Printing demand rises sharply before submission dates, and one counter with one operator cannot absorb it.</li>
+            <li><strong>Cash and change problems.</strong> Small payments in cash need exact change, and both students and shopkeepers lose time to this.</li>
+            <li><strong>Staff time on a non-academic task.</strong> Library and office staff spend part of every day on printing instead of on the work they were hired to do.</li>
+            <li><strong>Privacy.</strong> Documents left in an output tray can be taken or read by anyone who passes. At a shared counter this applies to assignments, project reports and sometimes personal documents.</li>
+            <li><strong>No record.</strong> Counter printing leaves no reliable log of what was printed, by whom, or what was paid, so disputes and errors are hard to settle.</li>
+          </ul>
+        </section>
+
+        <section class="sec">
+          <h3>What it costs the institution</h3>
+          <p>Administrators rarely see printing as a cost centre, but it uses resources across the institution. Part of this cost is human: staff time diverted from teaching support and library services. Part is physical: counter space and equipment that need upkeep. The rest is organisational: end-of-day cash reconciliation and a steady flow of small complaints about queues, wrong prints and missing change. Because none of this is tracked, it is easy to underestimate. Costs are discussed qualitatively here, and figures appear in Chapter 14.</p>
+
+          <p>The main cost areas are:</p>
+
+          <ul>
+            <li>Staff hours spent operating counters and handling print requests</li>
+            <li>Counter space and equipment taken up by manual printing</li>
+            <li>Daily cash handling and reconciliation</li>
+            <li>Complaints about waiting times, errors and payment disputes</li>
+            <li>Paper and toner wasted on reprints and uncollected jobs</li>
+          </ul>
+        </section>
+
+        <section class="sec">
+          <h3>What a solution must do</h3>
+          <p>A printing solution for a university should meet these criteria:</p>
+
+          <ol>
+            <li><strong>R1: Always available.</strong> It works whenever the campus is open, not only during staff hours.</li>
+            <li><strong>R2: No cash handling.</strong> Payment is digital, with no change and no end-of-day counting.</li>
+            <li><strong>R3: Private by design.</strong> A document is never visible to anyone other than its owner.</li>
+            <li><strong>R4: Usable without training.</strong> A first-time user can print without asking for help.</li>
+            <li><strong>R5: Accountable.</strong> Every job and payment is recorded and can be traced.</li>
+            <li><strong>R6: Low staff effort.</strong> It runs without a dedicated operator and reports its own problems.</li>
+          </ol>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 2 ---- -->
+      <section class="chapter" id="ch-2">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Introducing PrintPod</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2–3 sentences introducing PrintPod as the proposed answer to the requirements just listed, without yet going into architecture.]</em></p></aside>
+
+        <section class="sec">
+          <h3>What it is</h3>
+          <p>The ATM Printer is a self-service printing kiosk for universities. A student uploads a PDF, chooses print options, pays digitally and collects the printout at the kiosk, with no staff member involved. Documents are released only to the person who submitted them, and every job and payment is recorded. Administrators can monitor paper, ink and printer status remotely, so the kiosk keeps running without a dedicated operator.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Key capabilities at a glance</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Capability</th>
+                  <th scope="col">What it means</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Upload PDFs</td>
+                  <td>Send your file to the kiosk from your own phone or laptop</td>
+                </tr>
+                <tr>
+                  <td>Choose print options</td>
+                  <td>Pick copies, colour or black and white, and single or double sides before you pay</td>
+                </tr>
+                <tr>
+                  <td>Digital payment</td>
+                  <td>Pay on screen, with no cash and no change needed</td>
+                </tr>
+                <tr>
+                  <td>Self-service collection</td>
+                  <td>Pick up your printout at the kiosk at any hour the campus is open</td>
+                </tr>
+                <tr>
+                  <td>Private release</td>
+                  <td>Your document prints only when you are standing at the kiosk</td>
+                </tr>
+                <tr>
+                  <td>Job queue</td>
+                  <td>Jobs are handled in order, so a busy period does not cause a breakdown</td>
+                </tr>
+                <tr>
+                  <td>Printer monitoring</td>
+                  <td>The kiosk tracks its own paper and ink levels and reports faults</td>
+                </tr>
+                <tr>
+                  <td>Records and reports</td>
+                  <td>Every print and payment is logged for you and for the administrator</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <section class="sec">
+          <h3>How it answers each requirement</h3>
+          <ul>
+            <li><strong>R1, Always available:</strong> The kiosk runs without staff, so printing is possible whenever the campus is open.</li>
+            <li><strong>R2, No cash handling:</strong> Payment is digital, so there is no change to give and no cash to reconcile.</li>
+            <li><strong>R3, Private by design:</strong> Files are held until the owner is at the kiosk, so no one else sees the printout.</li>
+            <li><strong>R4, Usable without training:</strong> The flow is upload, choose, pay, collect, shown step by step on screen.</li>
+            <li><strong>R5, Accountable:</strong> Each job and payment is logged against the user.</li>
+            <li><strong>R6, Low staff effort:</strong> Remote monitoring of paper, ink and printer status replaces routine checks by staff.</li>
+          </ul>
+        </section>
+
+        <section class="sec">
+          <h3>Who it serves</h3>
+          <p><strong>The student.</strong> Students can print at any hour, pay without cash, and collect their documents without waiting behind a queue. Their files stay private from upload to collection.</p>
+
+          <p><strong>The faculty member.</strong> Faculty can print handouts, question papers and notes without going through a department office. A record of each job is kept, so repeat prints and costs are easy to track.</p>
+
+          <p><strong>The administrator.</strong> Administrators get a printing service that does not depend on staff time or cash handling. They can see usage, payments and printer status from one place and plan refills before the kiosk runs out.</p>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 3 ---- -->
+      <section class="chapter" id="ch-3">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">How it works</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences promising a plain-language walkthrough before the technical detail of part 2.]</em></p></aside>
+
+        <section class="sec">
+          <h3>The four-step cycle</h3>
+          <p>Every print job on PrintPod goes through the same four steps: upload, choose, pay and collect. The order is fixed. A job cannot move on until the step before it is done, so a user is never asked to decide something before the kiosk has what it needs to show them the result. This is how the system meets requirement R4, usable without training (Section 1.4): a first-time user only ever has one thing to do next.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Step</th>
+                  <th scope="col">What the user does</th>
+                  <th scope="col">What is settled by the end of it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1 <strong>Upload</strong></td>
+                  <td>Sends a file to the kiosk, either by scanning the QR code on its screen or by entering a six-digit collection code for a file already uploaded from the website.</td>
+                  <td>The file is in the system and the kiosk can show a preview of it.</td>
+                </tr>
+                <tr>
+                  <td>2 <strong>Choose</strong></td>
+                  <td>Checks the preview, then picks copies, page range, sides, colour and paper size.</td>
+                  <td>What will be printed, and exactly what it will cost.</td>
+                </tr>
+                <tr>
+                  <td>3 <strong>Pay</strong></td>
+                  <td>Pays on the kiosk screen by UPI, campus card or wallet balance.</td>
+                  <td>The payment is confirmed. Printing cannot start before this.</td>
+                </tr>
+                <tr>
+                  <td>4 <strong>Collect</strong></td>
+                  <td>Takes the printout from the output tray.</td>
+                  <td>The job is complete and the document is deleted.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Two rules sit behind this order. The user sees the final price before paying, because Choose comes before Pay. And nothing is printed until the payment gateway has confirmed the payment, because Pay comes before Collect. The second rule matters most. It appears again in Section 3.3 and in Section 4.4.</p>
+
+          <p>Chapter 7 shows each step screen by screen. It splits Choose into two screens, one for the preview and one for the print settings, so it lists five steps where this chapter lists four. The process is the same. The user guide counts screens, and this chapter counts decisions.</p>
+</section>
+
+        <section class="sec">
+          <h3>The user journey</h3>
+          <p>Take the student from Section 1.1, who needs three printed copies of a report before 9 a.m. With PrintPod her evening goes differently. She uploads the report from her hostel room on the PrintPod website and is given a six-digit collection code. She walks to the nearest kiosk and types in the code, and the report appears on screen as a preview. She checks that her tables have not moved, raises the copies to three, and watches the price change as she goes. She pays by UPI, collects three copies from the tray and leaves. By then the kiosk has already deleted her file.</p>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert diagram]</span></div>
+            <figcaption>The user flow, from arriving at the kiosk to collecting a finished printout.</figcaption>
+          </figure>
+
+          <p>The figure shows the main path across the middle and the ways out of it underneath. There are two ways to start. A user who is already at the kiosk scans the QR code on its screen with a phone and picks a file. A user who prefers to upload in advance does so from the website and brings the six-digit code (Section 6.2). Either way the file reaches the system through the web app, so every screen after that looks the same.</p>
+
+          <p>A user can leave at several points without losing anything. A file that is too large, too long or password-protected is rejected at upload and the user is not charged (Section 6.1). Tapping Cancel Job on the preview screen returns the kiosk to its start screen with nothing charged. A job that is uploaded but never paid for expires after ten minutes and is deleted (Section 6.4). Once a user has paid, the responsibility passes to the system. If the job then cannot be printed, the user is refunded under the rules in Chapter 13.</p>
+</section>
+
+        <section class="sec">
+          <h3>What happens behind the scenes</h3>
+          <p>The user sees four steps. Behind them, three parts of the system take turns: the kiosk, the cloud backend and the payment gateway. The backend is involved in every step, because the kiosk never accepts a file or confirms a payment on its own. Chapter 4 describes each part. The table shows what happens behind the screen at each step.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Step</th>
+                  <th scope="col">What happens behind the screen</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Upload</strong></td>
+                  <td>The user's phone opens the PrintPod web app, which sends the file to the backend. The backend checks it against the limits in Section 6.1 and converts anything that is not a PDF. It creates a job record. For a kiosk upload it links the job to that kiosk's session through the QR code, which is valid for five minutes and for that one session only. For a website upload it issues a six-digit collection code instead. It then sends a preview to the kiosk.</td>
+                </tr>
+                <tr>
+                  <td><strong>Choose</strong></td>
+                  <td>The kiosk sends each setting to the backend, which applies the current rates (Section 13.2) and returns the price. The price is fixed when the user reaches the payment screen, so the amount paid is the amount shown.</td>
+                </tr>
+                <tr>
+                  <td><strong>Pay</strong></td>
+                  <td>The backend asks the payment gateway for a payment request for that amount and that job. The kiosk shows it as a QR code or waits for a campus-card tap. When the money has been taken, the gateway confirms to the backend, and only then does the backend mark the job as paid.</td>
+                </tr>
+                <tr>
+                  <td><strong>Collect</strong></td>
+                  <td>The backend releases the paid job to the kiosk, which puts it in its queue and prints it. When the kiosk reports that printing is done, the backend writes the transaction record and deletes the document, both its own copy and the copy spooled to the kiosk, within sixty seconds (Section 6.5).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="callout">
+            <p class="callout__label">Note</p>
+            <p>PrintPod does not rely on what a user's phone shows. The backend waits for the gateway's own confirmation, so a job never prints on an unconfirmed payment.</p>
+          </aside>
+
+          <p>While all this happens, the kiosk also reports to the backend, whether or not anyone is using it. It sends its state, its paper and toner levels and any fault. These reports feed the dashboard and the alerts described in Chapter 8. If the backend hears nothing from a kiosk for five minutes, it marks the kiosk Offline, and the kiosk takes no new jobs until the connection returns (Section 8.3).</p>
+
+          <p>The same structure makes failures predictable. The backend holds the job and the gateway holds the payment, so the system always knows which of the two succeeded, and Section 4.6 lists what happens in each case. Every step also adds a line to the job's timeline, which is what an administrator reads when a student reports a problem (Section 8.7).</p>
+</section>
+      </section>
+
+    </section>
+
+    <!-- ============ PART 2 ============ -->
+    <section class="part" id="part-2">
+
+      <header class="part-opener">
+        <p class="part-opener__label" aria-hidden="true"></p>
+        <h2 class="part-title">The product</h2>
+        <hr class="rule">
+      </header>
+
+      <!-- ---- Chapter 4 ---- -->
+      <section class="chapter" id="ch-4">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">System architecture</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences naming the four components the chapter will describe and the relationship between them.]</em></p></aside>
+
+        <section class="sec">
+          <h3>Overview</h3>
+          <p>PrintPod has four parts: the kiosk, the cloud backend, the payment gateway and the admin portal. Users reach the system through a fifth, lighter component, the PrintPod web app, which runs in the browser on their own phone or laptop and needs no installation. Figure 4.1 shows how the parts connect.</p>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert diagram]</span></div>
+            <figcaption>PrintPod system architecture: kiosk, cloud backend, payment gateway and admin portal.</figcaption>
+          </figure>
+
+          <p>The backend sits in the middle. Every other part talks to the backend and not to the others. A file travels from the user's phone to the backend and then to the kiosk. A payment is confirmed by the gateway to the backend, and then the backend tells the kiosk to print. An administrator's action in the portal goes to the backend, which applies it. This keeps the kiosk simple, and it gives the system one place where every job and payment is recorded (requirement R5).</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Part</th>
+                  <th scope="col">Where it runs</th>
+                  <th scope="col">What it does</th>
+                  <th scope="col">Who uses it</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Kiosk</strong></td>
+                  <td>On campus, at the site</td>
+                  <td>Shows the screens, takes the payment, queues jobs and prints</td>
+                  <td>Students and faculty</td>
+                </tr>
+                <tr>
+                  <td><strong>Cloud backend</strong></td>
+                  <td>Hosted online, outside the campus</td>
+                  <td>Receives and converts files, prices jobs, runs the queue, keeps the records, deletes documents</td>
+                  <td>The other parts only</td>
+                </tr>
+                <tr>
+                  <td><strong>Payment gateway</strong></td>
+                  <td>Run by a third-party provider</td>
+                  <td>Processes payments and refunds and confirms the result</td>
+                  <td>The backend only</td>
+                </tr>
+                <tr>
+                  <td><strong>Admin portal</strong></td>
+                  <td>A web page served by the backend</td>
+                  <td>Shows status, prices and records, and handles refunds and reports</td>
+                  <td>Operators and administrators</td>
+                </tr>
+                <tr>
+                  <td><strong>Web app</strong></td>
+                  <td>In the user's own browser</td>
+                  <td>Uploads files and shows prices, kiosk status and recent jobs</td>
+                  <td>Students and faculty</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Three design decisions shape the architecture.</p>
+
+          <ul>
+            <li><strong>One way in.</strong> Every file goes through the backend. The kiosk has no USB port and no inbox (Section 6.2), so there is no way to put a file into the unit that has not been checked and logged first.</li>
+            <li><strong>A thin kiosk.</strong> The kiosk holds no accounts and no history. It keeps a document only for the job it is printing and deletes it afterwards (Section 6.5). Nothing about past users is stored on the unit.</li>
+            <li><strong>Payment handled outside.</strong> The gateway handles all money. PrintPod itself holds no bank or card credentials, and no card details reach the kiosk (Section 10.3).</li>
+          </ul>
+</section>
+
+        <section class="sec">
+          <h3>The kiosk</h3>
+          <p>The kiosk is the only part of PrintPod that users touch. Its enclosure, printer and screen are specified in Chapter 5. This section covers the software and electronics inside it, which do five jobs.</p>
+
+          <ul>
+            <li><strong>Interface.</strong> The touchscreen shows the upload, preview, settings, payment and collection screens in English, Hindi or Malayalam, with the accessibility options in Section 6.6. It holds no user accounts, so nothing a user chooses is kept once the session ends.</li>
+            <li><strong>Print spooler.</strong> The spooler receives a paid job from the backend, holds it in a queue and sends it to the printer one job at a time (Section 6.4). It is the only place on the kiosk where a document exists, and it is emptied when the job is done.</li>
+            <li><strong>Payment hardware.</strong> The screen shows the dynamic QR code for UPI payments, and the NFC reader takes a campus-card tap. The kiosk does not store or process payment credentials. It passes the request on and receives only the result.</li>
+            <li><strong>Status reporting.</strong> The kiosk reports its state, its paper and toner levels and any printer or reader fault to the backend. These reports drive the five states in Section 8.3 and the status light along the top of the unit.</li>
+            <li><strong>Connectivity.</strong> The kiosk connects over Wi-Fi 6 or Gigabit Ethernet, with 4G LTE as a fallback (Section 5.2). It always starts the connection to the backend itself, so the campus network does not need to accept incoming connections from outside.</li>
+          </ul>
+
+          <p>If the kiosk loses contact with the backend, it stops taking new jobs and shows an unavailable message, because without the backend it cannot confirm a payment. Status reports are held on the kiosk and sent when the connection returns, so no records are lost.</p>
+</section>
+
+        <section class="sec">
+          <h3>The cloud backend</h3>
+          <p>The backend is software running on servers outside the campus. It does the work that must be the same for every kiosk and every user. Apart from the kiosk that prints a job, it is the only part that ever holds a document. Its responsibilities are:</p>
+
+          <ul>
+            <li><strong>Receiving and converting.</strong> It accepts files from the web app and checks type, size, length and password protection (Section 6.1). It converts Word, PowerPoint, text and image files to PDF and builds the preview the kiosk shows, so the user sees the converted file before paying.</li>
+            <li><strong>Pairing jobs with kiosks.</strong> It issues the QR session code, which is valid for five minutes and one session, and the six-digit collection code. Either one connects a job to the kiosk where the user is standing.</li>
+            <li><strong>Pricing.</strong> It applies the rate table and any concession, free quota or departmental billing set by the administrator (Sections 13.2 and 13.3), and returns the price each time a setting changes.</li>
+            <li><strong>Queues and timers.</strong> It holds each kiosk's queue and runs the expiry timers: ten minutes for an unpaid job and thirty minutes for a paid job that cannot be printed (Section 6.4).</li>
+            <li><strong>Payments.</strong> It creates payment requests with the gateway, receives the confirmations and starts refunds (Section 4.4).</li>
+            <li><strong>Records.</strong> It writes every job, payment, refund and administrative action to the records, and answers the admin portal.</li>
+            <li><strong>Deletion.</strong> It deletes each document within sixty seconds of the job completing (Section 6.5).</li>
+          </ul>
+
+          <p>The backend keeps three kinds of data, and it keeps them apart.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Data</th>
+                  <th scope="col">What it contains</th>
+                  <th scope="col">How long it is kept</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Documents</strong></td>
+                  <td>The uploaded file and its preview</td>
+                  <td>Deleted within sixty seconds of printing, ten minutes after upload if unpaid, or thirty minutes after payment if not printed (Section 6.5)</td>
+                </tr>
+                <tr>
+                  <td><strong>Transaction records</strong></td>
+                  <td>Job ID, kiosk, page count, settings, price, payment reference, status and times. Never the document, its file name or its contents</td>
+                  <td>As set out in Section 10.6</td>
+                </tr>
+                <tr>
+                  <td><strong>Audit log</strong></td>
+                  <td>Prices changed, refunds issued and accounts changed, each with the person's name and the time</td>
+                  <td>As set out in Section 10.6</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The separation is deliberate. Because documents and records are stored apart, deleting a document never touches the billing record, and the records can be shown to administrators without any risk of exposing what was printed. Chapter 10 sets out how documents and records are protected.</p>
+</section>
+
+        <section class="sec">
+          <h3>The payment gateway</h3>
+          <p>The payment gateway is a third-party service, contracted by the institution (the merchant account in Section 9.2), that handles all money in PrintPod. It supports UPI, campus cards and wallet balances (Section 13.1). PrintPod gives it the amount for a job and takes back only the result.</p>
+
+          <p><strong>How a payment is confirmed.</strong> The backend creates a payment request with the gateway for the exact amount, tied to one job. The kiosk shows it as a dynamic QR code, or waits for a campus-card tap. When the user approves, the gateway sends its confirmation to the backend. The backend marks the job as paid on that message and no other, and only then releases the job to print. PrintPod does not act on what a user's phone shows, because only the gateway can say that the money has moved.</p>
+
+          <p><strong>Why the gateway handles it all.</strong> The kiosk and the backend hold no bank or card credentials, so there are none to lose if either is compromised (Section 10.3). Each payment is also tied to one job, which is how a second payment for the same job is recognised and refunded.</p>
+
+          <p><strong>How refunds work.</strong> A refund is a request from the backend to the gateway, and it goes back to the original payment method. The backend sends one automatically when a paid job fails: the full amount if no page was delivered, the amount for the unprinted pages if the job stopped part-way, and the second payment if a job was paid for twice (Section 8.7). Wallet and campus-card refunds are credited within minutes. A UPI refund is sent back to the payer's bank straight away, and how soon it appears depends on the bank.</p>
+
+          <p><strong>When the connection is lost.</strong> If the kiosk cannot reach the backend, it cannot get a confirmation, so it does not ask for payment at all and shows an unavailable message (Section 8.3). A user is never charged for a job that cannot start.</p>
+
+          <p><strong>Settlement.</strong> The gateway pays the institution on its own settlement schedule, after fees. The portal's revenue figures are the payments the gateway has confirmed, which have not necessarily reached the bank yet (Section 13.5).</p>
+</section>
+
+        <section class="sec">
+          <h3>The admin portal</h3>
+          <p>The admin portal is the web page through which the institution runs the service. It is served by the backend, so there is nothing to install. Operators and administrators open it in a browser and sign in with a password and a one-time code sent to their email or phone, and the session ends after 15 minutes without activity (Section 8.1). Chapter 8 explains how to use it. This section covers where it fits.</p>
+
+          <ul>
+            <li><strong>What it shows.</strong> Live kiosk status, jobs, payments, refunds, paper and toner levels and open alerts (Section 8.2).</li>
+            <li><strong>What it can change.</strong> Prices, refunds, user accounts and kiosk registration. Each of these is limited by role. An operator can watch and acknowledge, and only an administrator can change prices, issue refunds or manage accounts (Section 8.1).</li>
+            <li><strong>What it records.</strong> Every change is written to the audit log with the name of the person who made it and the time.</li>
+          </ul>
+
+          <p>No role can open a document. The portal is connected to the transaction records and the status reports, and not to the document store, so the restriction does not depend on a setting that someone could change. This is requirement R3 applied to the people who run the service, and Section 10.5 describes access control in full.</p>
+</section>
+
+        <section class="sec">
+          <h3>Data flow for a single print job</h3>
+          <p>This section follows one job, started at the kiosk by QR code, through every part of the system. Each row is one message from one part to another. The rows are in the order they happen and follow the four steps of Chapter 3.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th scope="col">Between</th>
+                  <th scope="col">What happens</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>Phone and backend</td>
+                  <td>The user scans the QR code and the web app opens, already linked to the kiosk. They pick a file, which is uploaded over an encrypted connection.</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>Backend</td>
+                  <td>The backend checks the file, converts it to PDF if needed and creates the job record.</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>Backend and kiosk</td>
+                  <td>The backend sends the preview, and the kiosk shows it.</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>Kiosk and backend</td>
+                  <td>The user sets the options. The kiosk sends each setting and the backend returns the price.</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>Backend and gateway</td>
+                  <td>The user taps Proceed to Payment. The backend creates a payment request for the price shown, and the kiosk displays it.</td>
+                </tr>
+                <tr>
+                  <td>6</td>
+                  <td>Gateway and backend</td>
+                  <td>The user pays. The gateway confirms to the backend, which marks the job as paid.</td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>Backend and kiosk</td>
+                  <td>The backend releases the paid job. It joins the kiosk's queue and prints.</td>
+                </tr>
+                <tr>
+                  <td>8</td>
+                  <td>Kiosk and backend</td>
+                  <td>The kiosk reports the job complete. The status light changes from blue to green (Section 7.6).</td>
+                </tr>
+                <tr>
+                  <td>9</td>
+                  <td>Backend</td>
+                  <td>The backend records the job as Printed and writes the transaction record. It deletes the document from its own store and from the kiosk within sixty seconds.</td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>Backend and portal</td>
+                  <td>The job appears in the admin portal under Transactions, with its timeline.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>A document exists in only two places during this flow: the backend's document store, from step 1, and the kiosk's spooler, from step 7. Both are cleared at step 9. A job uploaded from the website follows the same path. Only step 1 differs, because the upload happens before the user reaches the kiosk, and the six-digit collection code is entered at the kiosk in place of the QR scan.</p>
+
+          <h4>When a step fails</h4>
+
+          <p>Each of these events appears on the job's timeline in the portal, so an administrator can see what happened without needing to see the document.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">What goes wrong</th>
+                  <th scope="col">What the system does</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>The user uploads a file but never pays</td>
+                  <td>The job expires ten minutes after upload and the document is deleted (Section 6.4).</td>
+                </tr>
+                <tr>
+                  <td>The user cancels, or the payment is not completed</td>
+                  <td>Nothing prints and no money is taken.</td>
+                </tr>
+                <tr>
+                  <td>The gateway confirms, but the kiosk loses its connection before printing starts</td>
+                  <td>The full amount is refunded automatically (Section 8.7).</td>
+                </tr>
+                <tr>
+                  <td>The printer fails after payment, for example a jam or no paper</td>
+                  <td>The job is held for thirty minutes so it can be released after the fault is fixed. If it still cannot be printed, it is deleted and the payment is refunded. If it stopped part-way, the pages not printed are refunded (Chapter 13).</td>
+                </tr>
+                <tr>
+                  <td>The same job is paid for twice</td>
+                  <td>The second payment is refunded.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+</section>
+      </section>
+
+      <!-- ---- Chapter 5 ---- -->
+      <section class="chapter" id="ch-5">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Hardware specifications</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences. Note that the specifications are indicative figures chosen for a concept design, not quotations from a manufacturer.]</em></p></aside>
+
+        <section class="sec">
+          <h3>The kiosk unit</h3>
+          <p>The PrintPod unit is a free-standing enclosure designed to stand against a wall in a corridor, foyer or library entrance. It is 1,450 mm tall, which places the touchscreen at a comfortable height for a standing adult and keeps the output tray above knee level. The front face carries, from top to bottom, the touchscreen, the QR scanner window, the card reader and the output tray. The printer sits behind a lockable panel on the left side, so paper and toner can be replaced without opening the main enclosure. A status light runs along the top edge and is visible from the far end of a corridor, which lets a passing student see that the kiosk is free before walking to it.</p>
+
+        </section>
+
+        <section class="sec">
+          <h3>Specification table</h3>
+          <p>The specifications below describe the standard PrintPod unit. Every figure quoted elsewhere in this ebook refers to this table.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Component</th>
+                  <th scope="col">Specification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Printer type</td>
+                  <td>Monochrome laser (colour laser on the PrintPod C variant)</td>
+                </tr>
+                <tr>
+                  <td>Print speed</td>
+                  <td>32 pages per minute, A4 monochrome</td>
+                </tr>
+                <tr>
+                  <td>Print resolution</td>
+                  <td>1200 × 1200 dpi</td>
+                </tr>
+                <tr>
+                  <td>Paper sizes supported</td>
+                  <td>A4 and A3</td>
+                </tr>
+                <tr>
+                  <td>Paper tray capacity</td>
+                  <td>[sheets]</td>
+                </tr>
+                <tr>
+                  <td>Output tray capacity</td>
+                  <td>[sheets]</td>
+                </tr>
+                <tr>
+                  <td>Touchscreen</td>
+                  <td>15.6 inch, 1920 × 1080, capacitive multi-touch</td>
+                </tr>
+                <tr>
+                  <td>Payment hardware</td>
+                  <td>QR scanner for UPI, NFC reader for campus cards</td>
+                </tr>
+                <tr>
+                  <td>Connectivity</td>
+                  <td>Wi-Fi 6 (802.11ax), Gigabit Ethernet, 4G LTE fallback</td>
+                </tr>
+                <tr>
+                  <td>Power requirement</td>
+                  <td>230 V, 50 Hz, 450 W peak and 12 W standby</td>
+                </tr>
+                <tr>
+                  <td>Dimensions</td>
+                  <td>1,450 × 600 × 550 mm</td>
+                </tr>
+                <tr>
+                  <td>Weight</td>
+                  <td>78 kg</td>
+                </tr>
+                <tr>
+                  <td>Enclosure</td>
+                  <td>Powder-coated 1.5 mm steel, cam lock on each access panel, IP41</td>
+                </tr>
+                <tr>
+                  <td>Operating temperature</td>
+                  <td>10 °C to 35 °C</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <section class="sec">
+          <h3>Consumables</h3>
+          <p>The unit takes two consumables, and both can be replaced by a campus operator without a service visit.</p>
+
+          <p>Paper. The tray holds 500 sheets of 80 gsm A4. A second tray for A3 is fitted to units that offer A3 printing. At the usage assumed in Chapter 14, a single kiosk empties its A4 tray roughly every two days during term and far less often outside it.</p>
+
+          <p>Toner. The cartridge is rated at 6,000 pages at five per cent coverage, which works out to about three weeks of term-time printing on one unit. The admin portal raises a low-toner alert at fifteen per cent remaining, giving an operator several days of warning rather than a surprise on a deadline morning.</p>
+
+          <p>Both consumables are ordinary office stock. Nothing in the kiosk is proprietary, and an institution can buy paper and cartridges from its existing supplier.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Site requirements</h3>
+          <p>A location must meet five requirements before a unit can be installed.</p>
+
+          <p>Floor space. The unit occupies 600 mm by 550 mm. Allow 900 mm of clear space in front for a user to stand, and 400 mm of clearance on the left for the printer panel to swing open.</p>
+
+          <p>Power. One earthed 230 V socket within two metres, on a circuit that is not switched off with the building lighting. The unit draws 450 W while printing and 12 W on standby.</p>
+
+          <p>Network. Wi-Fi coverage at the kiosk position, or a wired point within three metres. Signal strength should be tested at the exact position rather than assumed from coverage elsewhere in the building.</p>
+
+          <p>Lighting. Enough ambient light for a user to read the screen and check a printout, and no window directly behind the unit, which makes the touchscreen hard to read for part of the day.</p>
+
+          <p>Mounting. The unit is bolted to the floor through four points in the base. Floor fixing is required in any location that is unsupervised outside staff hours.</p>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 6 ---- -->
+      <section class="chapter" id="ch-6">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Software features</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences on what the software does for the user and for the operator.]</em></p></aside>
+
+        <section class="sec">
+          <h3>Supported file formats</h3>
+          <p>PrintPod accepts PDF, Word documents in .docx and .doc, PowerPoint files in .pptx, plain text, and the JPG, PNG and HEIC image formats.</p>
+
+          <p>PDF is the recommended format and prints exactly as it appears on the user's own screen. Other formats are converted to PDF on the backend before printing, and conversion can shift the layout of a document that uses an unusual font or a complex table. The preview screen shows the converted file, not the original, so a user who checks the preview will see any shift before paying.</p>
+
+          <p>The maximum file size is 50 MB and the maximum length is 200 pages in a single job. A file that exceeds either limit is rejected at upload with a message naming the limit it broke, and the user is not charged. Password-protected files cannot be opened and are rejected in the same way.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Upload methods</h3>
+          <p>There are two ways to get a document onto a kiosk, and both go through the same place: the PrintPod web app, at the address printed on every unit. There is nothing to install and no account to create.</p>
+
+          <p>Why both routes lead to the same place. Sending every upload through one web app keeps the path identical whichever way a user starts, so the preview, settings and payment screens behave the same way in both cases. It also means the kiosk itself never accepts a file directly. There is no USB port and no inbox, so there is no way to put a file into the unit without it passing through the backend first.</p>
+
+          <p>At the kiosk, by QR code. The user taps Upload on the kiosk and scans the QR code shown on screen with their phone camera. The code opens the PrintPod web app in the phone's browser, already linked to that kiosk, and the user picks a file from their phone storage or from a cloud drive they are signed in to. The file appears on the kiosk screen for preview within a few seconds. The QR code is valid for five minutes and belongs to that one session, so nobody else can send a file to the kiosk while it is in use.</p>
+
+          <p>From the website, before arriving. The user opens the PrintPod web address in any browser, uploads a file and receives a six-digit collection code. Entering that code at any kiosk on campus brings the job up for preview. This is the faster route at busy times, because the upload is finished before the user reaches the queue.</p>
+
+          <p>What else the web app does. Besides uploading, it shows the current price list, the live status of every kiosk on campus so a user can walk to one that is free, and the user's own recent jobs with the amount paid and the refund status where a job failed. It never shows the contents of a document, and it holds no file once the job is complete, as set out in Section 6.5.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Print settings available to the user</h3>
+          <p>The settings screen offers seven options. Each one defaults to the cheapest sensible choice, so a user who changes nothing gets the lowest price for that document.</p>
+
+          <p>Copies defaults to one. Page range defaults to all pages. Sided defaults to double-sided, which halves the paper used. Colour defaults to monochrome. Paper size defaults to A4. Orientation defaults to the orientation of the uploaded file. Pages per sheet defaults to one.</p>
+
+          <p>The price shown at the foot of the screen updates as each setting changes, so a user can see the cost of switching to colour or to single-sided before committing to it.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Queue management</h3>
+          <p>Each kiosk prints one job at a time and holds the rest in a queue. A user who arrives while another job is printing can still upload, preview, configure and pay, and the screen shows their position in the queue and an estimated wait in seconds. In practice a queue rarely exceeds two jobs, because a typical job finishes in well under a minute.</p>
+
+          <p>An unpaid job is held for ten minutes from upload, after which it expires and is deleted. A paid job that fails to print, because the kiosk runs out of paper for instance, is held for thirty minutes so that it can be released once the kiosk is refilled. If it cannot be printed within that window, the job is deleted and the payment is refunded automatically under the rules in Chapter 13.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Document retention and deletion</h3>
+          <p>A document is deleted within sixty seconds of its print job completing. Deletion covers both the copy held in the backend and the copy spooled to the kiosk, and it happens whether or not the user collects the printout.</p>
+
+          <p>An uploaded job that is never paid for is deleted when it expires, ten minutes after upload. A paid job that cannot be printed is deleted after thirty minutes, together with an automatic refund.</p>
+
+          <p>Nothing is retained beyond these windows. The transaction record kept for billing holds the page count, the price and the timestamp, and does not hold the document, its file name or its contents. Chapter 10 sets out how files are protected while they are held.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Accessibility features</h3>
+          <p>The kiosk is designed to be usable by a seated wheelchair user. The touchscreen is mounted at 1,050 mm and tilted fifteen degrees upward, the output tray sits at 800 mm, and every control the user needs falls within a 1,200 mm reach from the front of the unit.</p>
+
+          <p>On screen, the interface offers three text sizes and a high-contrast mode, both reachable from an accessibility button present on every screen. The interface is available in English, Hindi and Malayalam, selected at the start of a session and reset when the session ends. Audio prompts can be enabled to read each screen aloud through a 3.5 mm headphone socket below the card reader, so a visually impaired user can work through the flow without a sighted assistant.</p>
+
+          <p>No setting persists between sessions, because the kiosk holds no user accounts. Each user chooses what they need at the start of their own session.</p>
+        </section>
+      </section>
+
+    </section>
+
+    <!-- ============ PART 3 ============ -->
+    <section class="part" id="part-3">
+
+      <header class="part-opener">
+        <p class="part-opener__label" aria-hidden="true"></p>
+        <h2 class="part-title">Using the kiosk</h2>
+        <hr class="rule">
+      </header>
+
+      <!-- ---- Chapter 7 ---- -->
+      <section class="chapter" id="ch-7">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">User guide</h2>
+          <hr class="rule">
+        </header>
+        <p>This guide provides step-by-step instructions for printing your documents at any PrintPod kiosk on campus. The process is fully automated, self-service, and requires no account creation or software installation.</p>
+
+        <section class="sec">
+          <h3>Before you start</h3>
+          <p>Before approaching a PrintPod kiosk, ensure you have the following items ready:</p>
+
+          <ul>
+            <li><strong>Document file:</strong> Saved on your smartphone, USB flash drive, or accessible via email or web browser. PDF format is strongly recommended for best layout preservation.</li>
+            <li><strong>Payment method:</strong> A active UPI app on your smartphone, or an activated campus student ID card with sufficient funds balance.</li>
+          </ul>
+
+          <p>No registration, account sign-up, or app installation is required to use the kiosk. Printing typically takes under two minutes from upload to collection.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Step 1 Upload your document</h3>
+          <ol>
+            <li>Tap <strong>Print Document</strong> on the kiosk main touch screen.</li>
+            <li>Select your preferred upload method from the on-screen menu: <strong>Scan QR Code</strong> (Phone), <strong>USB Drive</strong>, <strong>Email</strong>, or <strong>Web Code</strong>.</li>
+            <li>Scan the displayed QR code with your phone camera if choosing phone upload, and select your file on your mobile screen.</li>
+            <li>Insert your flash drive into the USB port below the touch screen if using USB upload, and tap your file name on screen.</li>
+            <li>Enter the 6-digit claim code on the touch screen if you submitted your file via email or web upload prior to arrival.</li>
+            <li>Wait for the kiosk to complete file processing and transfer to the preview screen.</li>
+          </ol>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>The upload screen, with the QR code and job code.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Step 2 Check the preview</h3>
+          <ol>
+            <li>Review the document preview pages displayed on the center of the touch screen.</li>
+            <li>Swipe left or right on the screen image to turn pages and verify full document layout.</li>
+            <li>Check for formatting accuracy, font rendering, margins, table alignment, and unwanted trailing blank pages.</li>
+            <li>Tap <strong>Cancel Job</strong> at the bottom left if formatting shifts or errors are detected, returning you safely to the start screen without penalty.</li>
+            <li>Tap <strong>Confirm &amp; Continue</strong> once page formatting is verified.</li>
+          </ol>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>The document preview screen, showing page thumbnails and the page count.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Step 3 Choose your print settings</h3>
+          <ol>
+            <li>Select <strong>Color Mode</strong> by tapping either <strong>Black &amp; White</strong> (default) or <strong>Color</strong>.</li>
+            <li>Choose <strong>Print Sides</strong> by selecting <strong>Double-Sided</strong> (default) or <strong>Single-Sided</strong>.</li>
+            <li>Set <strong>Copies</strong> by tapping the plus (<strong>+</strong>) or minus (<strong>-</strong>) buttons to adjust total required print sets.</li>
+            <li>Specify <strong>Page Range</strong> by selecting <strong>All Pages</strong> or typing custom start/end page numbers.</li>
+            <li>Observe the calculated total amount updating automatically at the bottom right corner as options are modified.</li>
+            <li>Tap <strong>Proceed to Payment</strong> when satisfied with settings and price.</li>
+          </ol>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>The print settings screen, with the running price total.</figcaption>
+          </figure>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>Colour and double-sided options, with the price difference shown.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Step 4 Pay</h3>
+          <ol>
+            <li>Choose your payment type by tapping <strong>UPI</strong> or <strong>Campus Card</strong> on the screen.</li>
+            <li>Scan the dynamic payment QR code on screen using any preferred UPI app on your phone if paying via UPI.</li>
+            <li>Tap your physical student card against the contactless NFC card reader icon below the screen if paying via Campus Card.</li>
+            <li>Confirm the transaction amount on your mobile phone app or on-screen prompt.</li>
+            <li>Verify screen green checkmark icon confirming instant payment receipt and job initiation.</li>
+          </ol>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>Choosing a payment method.</figcaption>
+          </figure>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>Payment confirmation, with the amount charged and the job code.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Step 5 Collect your printout</h3>
+          <ol>
+            <li>Watch top status light change from Blue (Busy) to Green (Ready) as printing completes.</li>
+            <li>Retrieve printed pages immediately from the illuminated output tray located below the main panel.</li>
+            <li>Check the on-screen final message confirming automatic secure deletion of all local temporary document files.</li>
+            <li>Tap <strong>Done</strong> or walk away; screen resets automatically after 15 seconds for the next user.</li>
+          </ol>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>The collection screen shown while the job prints, and the completion message.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Tips</h3>
+          <p><strong>Pro-Tips for Seamless Printing:</strong></p>
+
+          <ul>
+            <li><strong>Pre-upload on the walk:</strong> Upload your document via the PrintPod web portal while walking to the kiosk to receive a claim code and skip upload wait times.</li>
+            <li><strong>Convert to PDF first:</strong> Always export Word (.docx) or PowerPoint (.pptx) documents to PDF before uploading to lock in precise fonts and layout geometries.</li>
+            <li><strong>Save paper and money:</strong> Keep double-sided printing enabled by default to reduce total page charges and decrease paper waste.</li>
+          </ul>
+
+          <aside class="callout">
+            <p class="callout__label">Tip</p>
+            <p>[Write the one tip most worth lifting out of the list above — one or two sentences, phrased as an instruction.]</p>
+          </aside>
+        </section>
+
+        <section class="sec">
+          <h3>If something goes wrong</h3>
+          <p>If you encounter issues while using the kiosk, refer to the quick actions below:</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Issue</th>
+                  <th scope="col">Immediate Action</th>
+                  <th scope="col">Further Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Payment debited but document did not print</td>
+                  <td>Check transaction history in portal; automatic refund triggers within T+5 days.</td>
+                  <td>See Section 8.7 &amp; Chapter 12</td>
+                </tr>
+                <tr>
+                  <td>QR code fails to scan from mobile screen</td>
+                  <td>Increase mobile screen brightness to maximum and re-align phone camera.</td>
+                  <td>See Section 12.1</td>
+                </tr>
+                <tr>
+                  <td>Kiosk status light shows Amber or Red</td>
+                  <td>Check on-screen warning banner for paper/toner out of stock alerts.</td>
+                  <td>See Section 8.3 &amp; Section 12.2</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 8 ---- -->
+      <section class="chapter" id="ch-8">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Administrator guide</h2>
+          <hr class="rule">
+        </header>
+        <p>This chapter is for the people who run PrintPod once it is installed. The administrator sets prices, issues refunds and answers for the money. The operator looks after the kiosk day to day: watching its status and keeping paper and toner topped up. Both use the admin portal, and this chapter follows it from signing in to settling a dispute. Installation is in Chapter 9 and hands-on maintenance is in Chapter 11.</p>
+
+        <section class="sec">
+          <h3>Accessing the admin portal</h3>
+          <p>The admin portal is a web page, so there is nothing to install. Open the portal address you were given at commissioning in any current browser, enter your username and password, then enter the one-time code sent to your registered email or phone. The portal signs you out after 15 minutes without activity.</p>
+
+          <p>There are two roles, and the one you hold decides what the portal lets you do.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Role</th>
+                  <th scope="col">Who it is for</th>
+                  <th scope="col">Can do</th>
+                  <th scope="col">Cannot do</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Operator</td>
+                  <td>Library or department staff who look after the kiosk</td>
+                  <td>View the dashboard and kiosk status, acknowledge alerts, view job and payment records</td>
+                  <td>Change prices, issue refunds, export revenue reports, manage accounts</td>
+                </tr>
+                <tr>
+                  <td>Administrator</td>
+                  <td>The person responsible for the service</td>
+                  <td>Everything an operator can do, plus change prices, issue refunds, export reports, register kiosks and manage accounts</td>
+                  <td>Open or download a user's document (no role can)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>To add a person:</p>
+
+          <ol>
+            <li><em>Click <strong>Users</strong> in the left-hand menu.</em></li>
+            <li><em>Click <strong>Add user</strong>. Enter the person's name and institutional email address, then choose a role.</em></li>
+            <li><em>Click <strong>Send invite</strong>. The person receives a link to set their own password. The link expires after 24 hours.</em></li>
+          </ol>
+
+          <p><em>To remove someone's access, open their entry under <strong>Users</strong> and click <strong>Deactivate</strong>. Their past actions stay in the audit log. Keep the number of administrator accounts small, two or three for a campus, so that every refund or price change can be traced to a named person.</em></p>
+
+          <p><em>The <strong>Kiosks</strong> page lists every unit registered to your institution, with its name, location and the time it last contacted the backend. New kiosks are added during commissioning (Section 9.4).</em></p>
+        </section>
+
+        <section class="sec">
+          <h3>The dashboard</h3>
+          <p>The dashboard is the first page you see after signing in. It has five areas.</p>
+
+          <p><strong>Live kiosk status.</strong> One card per kiosk, showing its name, location, current state and the time it last contacted the backend. The states are explained in Section 8.3.</p>
+
+          <p><strong>Jobs today.</strong> The number of completed, failed and cancelled jobs since midnight, and the pages printed so far, split into black and white and colour.</p>
+
+          <p><strong>Revenue.</strong> Money collected today, refunds issued and the net total, split by payment method. These are payments the gateway has confirmed. They have not necessarily reached the institution's bank account yet (Section 13.5).</p>
+
+          <p><strong>Consumable levels.</strong> Paper and toner as a percentage for each kiosk. The bar turns amber when a level is low and red when it is empty.</p>
+
+          <p><strong>Alerts.</strong> Open alerts, newest first, each with the kiosk, what happened and when. Click an alert to see what it means and what to do about it. An operator can mark an alert as acknowledged, but it stays open until the cause is fixed.</p>
+
+          <p>No part of the dashboard shows a document. The portal holds page counts, settings, status and amounts, never the file or its name. This follows from requirement R3 and is set out in Section 10.5.</p>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert UI screenshot]</span></div>
+            <figcaption>The admin portal dashboard.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Monitoring kiosk health</h3>
+          <p>Each kiosk card shows one of five states. The table gives the meaning of each and what to do.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Indicator</th>
+                  <th scope="col">Meaning</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Online (green)</td>
+                  <td>The kiosk is connected and ready for the next user.</td>
+                  <td>None.</td>
+                </tr>
+                <tr>
+                  <td>Busy (blue)</td>
+                  <td>The kiosk is serving a job.</td>
+                  <td>None. If a kiosk stays Busy for more than 15 minutes with no change in pages printed, treat the job as stuck and see Section 12.1.</td>
+                </tr>
+                <tr>
+                  <td>Attention (amber)</td>
+                  <td>The kiosk still works, but something needs doing soon, such as low paper or low toner.</td>
+                  <td>Open the alert and follow it. Refill before the level reaches empty (Section 8.6).</td>
+                </tr>
+                <tr>
+                  <td>Out of service (red)</td>
+                  <td>The kiosk has stopped taking new jobs. Typical causes are no paper, no toner, a paper jam, a printer fault or a payment reader fault.</td>
+                  <td>Open the alert and send an operator to the kiosk. Section 12.1 lists the usual causes and fixes.</td>
+                </tr>
+                <tr>
+                  <td>Offline (grey)</td>
+                  <td>The backend has not heard from the kiosk for five minutes.</td>
+                  <td>Check the power and the network connection at the location. If the kiosk is still offline after 15 minutes, raise a service call (Section 11.5).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>A kiosk that is Out of service or Offline does not let anyone start a job. Without the backend it cannot confirm a payment, and it should not take money for something it cannot print. Users see an unavailable message instead of paying and being refunded later.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Managing pricing</h3>
+          <p>Prices are set per page, with higher rates for colour and for A3 and a discount for double-sided printing. The rates are the ones listed in Section 13.2, and only administrators can change them.</p>
+
+          <ol>
+            <li>Click <strong>Pricing</strong>. The current rate table opens.</li>
+            <li>Click <strong>Edit</strong> beside the rate you want to change and type the new rate in rupees.</li>
+            <li>Choose when it takes effect: <strong>Immediately</strong> or <strong>From a set date and time</strong>.</li>
+            <li>Click <strong>Review changes</strong>. The old and new rates appear side by side.</li>
+            <li>Click <strong>Publish</strong>. The change is saved in the audit log with your name and the time.</li>
+          </ol>
+
+          <p>Concession rates, free print quotas and departmental billing are set up on the same page. What each option does is described in Section 13.3.</p>
+
+          <p><strong>Warning: when changes take effect.</strong> A new rate applies to jobs priced after you publish it. A user already on the payment screen pays the price they were shown, and a job that has been paid for is never re-priced. Online kiosks pick up new rates within about a minute. Avoid changing prices in the hours before a submission deadline. Users will have seen the old rate on a poster or heard it from a friend, and the queue is at its longest.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Usage and revenue reports</h3>
+          <p>Four reports are available</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Report</th>
+                  <th scope="col">What it shows</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Usage</td>
+                  <td>Jobs completed, failed and cancelled; pages by colour, paper size and single or double sided; busiest hours; all per kiosk</td>
+                </tr>
+                <tr>
+                  <td>Revenue</td>
+                  <td>Payments by method, refunds and the net total, one line per day, with the gateway reference for each payment</td>
+                </tr>
+                <tr>
+                  <td>Consumables</td>
+                  <td>Refills logged, and paper and toner used per kiosk</td>
+                </tr>
+                <tr>
+                  <td>Kiosk health</td>
+                  <td>Time online, number of faults and how long each lasted</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>To produce one:</p>
+
+          <ol>
+            <li>Click <strong>Reports</strong> and choose a report.</li>
+            <li>Choose a period (<strong>Today</strong>, <strong>Last 7 days</strong>, <strong>This month</strong> or a custom range) and one kiosk or all kiosks.</li>
+            <li>Click <strong>Generate</strong>, then <strong>Export</strong>, and choose a format.</li>
+          </ol>
+
+          <p>Reports export as CSV, Excel (.xlsx) or PDF. Use CSV or Excel when you want to sort or chart the figures, and PDF when you need something to file or send on. The gateway references in the revenue report let finance staff match each line against the settlement statement from the payment provider. Reports contain job IDs and totals only: no file names and no document content.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Consumable alerts and refilling</h3>
+          <p>Each kiosk reports its paper and toner levels to the backend continuously, and two alerts follow from those readings.</p>
+
+          <p>A <strong>low alert</strong> (amber) is raised when paper falls to 20 percent of the tray or toner to 15 percent. The kiosk keeps working. Refill the same day.</p>
+
+          <p>An <strong>empty alert</strong> (red) is raised when either one runs out. The kiosk stops taking new jobs and shows an unavailable message. If paper runs out in the middle of a job, the kiosk pauses it. If the tray is not refilled within 10 minutes, the job is cancelled and the user is refunded for the pages not printed (Section 8.7).</p>
+
+          <p>Alerts go by email, and onto the dashboard, to every operator assigned to that kiosk. Administrators get a copy of every empty alert, and of any low alert still unacknowledged after four hours. If a site is slow to refill, an administrator can raise the thresholds under <strong>Kiosks</strong>, then the kiosk's name, then <strong>Alert settings</strong>, to get an earlier warning.</p>
+
+          <p>The refill procedure is in Section 11.2. Once paper or toner is loaded, the kiosk reports the new level and the alert closes by itself. Section 11.2 also explains how to clear it by hand if it does not. The consumables report (Section 8.5) shows how fast each kiosk uses stock, which tells you how much paper and toner to keep on site.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Handling refunds and disputes</h3>
+          <p>Printing starts only after the payment gateway confirms payment, and a failed print triggers a refund (Section 4.4). Most refunds therefore happen without anyone doing anything. This section covers what the system does on its own, and what you do when a student says they paid and got nothing.</p>
+
+          <h4>Automatic refunds</h4>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Situation</th>
+                  <th scope="col">Refund</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>The print fails after payment and no page is delivered (paper jam, printer fault)</td>
+                  <td>Full amount</td>
+                </tr>
+                <tr>
+                  <td>A job stops part-way and is not finished within 10 minutes (out of paper, power or network loss)</td>
+                  <td>Amount for the pages not printed</td>
+                </tr>
+                <tr>
+                  <td>Payment is confirmed but the kiosk loses its connection before printing starts</td>
+                  <td>Full amount</td>
+                </tr>
+                <tr>
+                  <td>The same job is paid for twice</td>
+                  <td>The second payment</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Refunds to a wallet balance or campus card are credited within minutes of the failure being recorded. A UPI refund is sent back to the payer's bank account straight away, but how soon it appears depends on the bank. The Reserve Bank of India's September 2019 circular on failed transactions allows up to five days (T+5) for a UPI payment to a merchant that was not confirmed, so ask students to allow that long before they chase it.</p>
+
+          <h4>When a student reports a problem</h4>
+
+          <ol>
+            <li><em>Click <strong>Transactions</strong> in the left-hand menu.</em></li>
+            <li>Search by payment reference (the UPI reference in the student's app), by job ID, or by kiosk, date and time.</li>
+            <li>Open the transaction. The status line reads Paid, Printed, Failed, Refund issued or Refund pending. Below it, a timeline lists each event from payment to collection, with the time.</li>
+            <li>Decide what to do from the table below.</li>
+          </ol>
+
+          <p><em>If a refund is due and none has been issued, click <strong>Refund</strong> (administrators only), choose a reason and click <strong>Confirm refund</strong>. The money goes back to the original payment method. Give the student the refund reference</em></p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">What the record shows</th>
+                  <th scope="col">What to do</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Printed, Completed</td>
+                  <td>The job was delivered, so no refund is due under the standard rules. Show the student the timeline. If they say pages came out faded or incomplete, check the kiosk. An administrator can then refund with the reason Quality.</td>
+                </tr>
+                <tr>
+                  <td>Failed, Refund issued</td>
+                  <td>Give the student the refund reference. If they are paid by UPI, ask them to wait out the bank's timeline, then raise it in their UPI app with the transaction ID.</td>
+                </tr>
+                <tr>
+                  <td>Failed, no refund</td>
+                  <td>Refund it manually. The system should have done this itself, so also report it as a fault (Section 11.5).</td>
+                </tr>
+                <tr>
+                  <td>No record at all</td>
+                  <td>The payment never reached PrintPod, so there is nothing to refund from here. Ask the student to check their bank statement and, if money left their account, to contact the bank with the UPI transaction ID.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Every refund, automatic or manual, is logged with the time, amount and reason and, for manual ones, the administrator's name. The log is kept as described in Section 10.6, and refunds appear in the revenue report. Keep an eye on the refund count for each kiosk. A kiosk that starts producing more refunds than the others usually has a hardware fault, and the pattern shows up here before anyone reports it.</p>
+        </section>
+      </section>
+
+    </section>
+
+    <!-- ============ PART 4 ============ -->
+    <section class="part" id="part-4">
+
+      <header class="part-opener">
+        <p class="part-opener__label" aria-hidden="true"></p>
+        <h2 class="part-title">Deployment and operations</h2>
+        <hr class="rule">
+      </header>
+
+      <!-- ---- Chapter 9 ---- -->
+      <section class="chapter" id="ch-9">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Installation and deployment</h2>
+          <hr class="rule">
+        </header>
+        <p>A kiosk is only as reliable as the place it stands in and the way it was set up. This chapter takes you from choosing a site to the first week of public use. It is written for the administrator and the facilities team. Physical specifications and clearances are in Chapter 5, and this chapter points to them instead of repeating them. Steps that need a second person or a qualified electrician are marked.</p>
+
+        <section class="sec">
+          <h3>Choosing a location</h3>
+          <p>Printing happens on the way to something else, usually a submission. A good site is one that students already pass or wait at. Apply the criteria below to each candidate on your own campus and compare the results, rating each one as meets, partly meets or does not meet.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Criterion</th>
+                  <th scope="col">What to look for</th>
+                  <th scope="col">Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Footfall</td>
+                  <td>Library lobbies, department entrances, hostel common areas, spots near the canteen</td>
+                  <td>A kiosk off the usual routes is underused, however good the machine</td>
+                </tr>
+                <tr>
+                  <td>Closeness to need</td>
+                  <td>A short walk from the library, departments, hostels and the places where assignments are submitted</td>
+                  <td>Students print just before they submit and do not want a long walk</td>
+                </tr>
+                <tr>
+                  <td>Hours of access</td>
+                  <td>A building that stays open as long as you want the kiosk available</td>
+                  <td>The kiosk cannot meet requirement R1 if the door is locked at 6 p.m.</td>
+                </tr>
+                <tr>
+                  <td>Power</td>
+                  <td>A socket within reach of the kiosk's own cable, with no extension lead</td>
+                  <td>Extension leads are a fire risk and a common cause of unplanned shutdowns</td>
+                </tr>
+                <tr>
+                  <td>Network</td>
+                  <td>A wired network point, or good Wi-Fi or 4G signal measured at the exact spot</td>
+                  <td>Without the backend the kiosk cannot confirm payments (Section 4.4)</td>
+                </tr>
+                <tr>
+                  <td>CCTV and lighting</td>
+                  <td>A spot within view of an existing camera, which does not record the screen or the output tray, with good lighting</td>
+                  <td>Deters tampering without compromising privacy (Section 10.4)</td>
+                </tr>
+                <tr>
+                  <td>Shelter</td>
+                  <td>Indoors or under a roof, away from rain, direct sun, dust and water points</td>
+                  <td>Humid air makes paper swell and jam, and the unit has a rated operating temperature (Section 5.2)</td>
+                </tr>
+                <tr>
+                  <td>Accessibility</td>
+                  <td>A step-free route and clear floor space for a wheelchair user to approach the screen</td>
+                  <td>Every student should be able to use it (Section 6.6)</td>
+                </tr>
+                <tr>
+                  <td>Queue space</td>
+                  <td>Room for a short line that does not block a corridor, a door or a fire exit</td>
+                  <td>Queues form before deadlines</td>
+                </tr>
+                <tr>
+                  <td>Support access</td>
+                  <td>Close to a staffed office or desk</td>
+                  <td>Refills and faults get attention quickly</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>Avoid narrow corridors, outdoor spots and anywhere locked at night. If two sites rate the same, choose the one with better access after hours.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Pre-installation checklist</h3>
+          <p>Everything below should be ticked before the unit arrives. A unit that turns up to a site without power or network sits in its crate for weeks.</p>
+
+          <p><strong>Site</strong></p>
+
+          <ul class="checklist">
+            <li><input type="checkbox" id="c9-2-g1-1"><label for="c9-2-g1-1">Location approved in writing by the building owner or facilities office</label></li>
+            <li><input type="checkbox" id="c9-2-g1-2"><label for="c9-2-g1-2">Floor space confirmed to the dimensions and clearances in Section 5.4</label></li>
+            <li><input type="checkbox" id="c9-2-g1-3"><label for="c9-2-g1-3">Floor level and strong enough for the unit's weight (Section 5.2)</label></li>
+            <li><input type="checkbox" id="c9-2-g1-4"><label for="c9-2-g1-4">Route from the building entrance to the site checked for door widths, lifts and corners</label></li>
+          </ul>
+
+          <p><strong>Power and network</strong></p>
+
+          <ul class="checklist">
+            <li><input type="checkbox" id="c9-2-g2-1"><label for="c9-2-g2-1">Power point installed within reach of the cable, earthed, tested, and matching the supply in Section 5.2</label></li>
+            <li><input type="checkbox" id="c9-2-g2-2"><label for="c9-2-g2-2">Surge protection or a UPS fitted, if the local supply is unreliable</label></li>
+            <li><input type="checkbox" id="c9-2-g2-3"><label for="c9-2-g2-3">Ethernet point live and tested, or Wi-Fi signal measured at the kiosk position</label></li>
+            <li><input type="checkbox" id="c9-2-g2-4"><label for="c9-2-g2-4">4G signal checked at the position, if you will use the fallback</label></li>
+          </ul>
+
+          <p><strong>Accounts and payments</strong></p>
+
+          <ul class="checklist">
+            <li><input type="checkbox" id="c9-2-g3-1"><label for="c9-2-g3-1">Payment gateway merchant account approved, with credentials in hand</label></li>
+            <li><input type="checkbox" id="c9-2-g3-2"><label for="c9-2-g3-2">Campus card integration switched on, if you will accept campus cards</label></li>
+            <li><input type="checkbox" id="c9-2-g3-3"><label for="c9-2-g3-3">Administrator and operator accounts planned, with names and roles (Section 8.1)</label></li>
+          </ul>
+
+          <p><strong>Supplies and people</strong></p>
+
+          <ul class="checklist">
+            <li><input type="checkbox" id="c9-2-g4-1"><label for="c9-2-g4-1">First paper and toner on site, plus one spare of each</label></li>
+            <li><input type="checkbox" id="c9-2-g4-2"><label for="c9-2-g4-2">Prices decided and rate sheet approved (Section 13.2)</label></li>
+            <li><input type="checkbox" id="c9-2-g4-3"><label for="c9-2-g4-3">Signage printed (Section 9.6)</label></li>
+            <li><input type="checkbox" id="c9-2-g4-4"><label for="c9-2-g4-4">Two people, and an electrician where marked, booked for installation day</label></li>
+            <li><input type="checkbox" id="c9-2-g4-5"><label for="c9-2-g4-5">One person named to hold the keys and one to receive alerts</label></li>
+          </ul>
+
+        </section>
+
+        <section class="sec">
+          <h3>Physical installation</h3>
+          <p>Allow half a day. Switch the unit off and unplug it before you open any panel. Steps marked <strong>[2 people]</strong> must not be done alone, because the unit is heavy (Section 5.2). Steps marked <strong>[electrician]</strong> need a qualified person.</p>
+
+          <ol>
+            <li><strong>[2 people]</strong> Inspect the delivery before you sign for it. Look for dents, a damaged enclosure or crushed packaging, and write any damage on the delivery receipt.</li>
+            <li><strong>[2 people]</strong> Unpack the unit. Check the contents against the packing list: the unit, the enclosure keys, the power cable, the output tray and the card with the installer code. Keep the packaging until acceptance testing is passed, in case the unit has to go back.</li>
+            <li><strong>[2 people]</strong> Move the unit to its marked spot on a trolley. Do not lift it by the touchscreen, the output tray or the door.</li>
+            <li>Position the unit with the clearances from Section 5.4: space at the sides and back for ventilation, and space at the front for the output tray and the printer access panel.</li>
+            <li>Level the unit. Turn each adjustable foot until a spirit level reads level front to back and side to side. A tilted printer feeds paper unevenly and jams.</li>
+            <li><strong>[electrician]</strong> Secure the unit to the floor with the fixings supplied. Section 5.4 says whether your site needs bolting down.</li>
+            <li><strong>[electrician]</strong> Check the power point. Confirm that the voltage matches Section 5.2 and that the earth connection is sound. Plug the unit in directly. Do not use an extension lead or a multiway adaptor. Leave it switched off.</li>
+            <li>Connect the network. Plug in the Ethernet cable, or, if you are relying on the 4G fallback, fit the SIM card now while the unit is off.</li>
+            <li>Remove the transport protection inside the printer: tape, foam and any packing in the paper path. Tape left behind is a classic cause of a jam on the very first print.</li>
+            <li>Fit the output tray, then open and close the printer access panel to check that it moves freely.</li>
+            <li>Close and lock the enclosure and check that the lock holds. Give the keys to the named key holder and note who has them. Do not leave a key in the lock.</li>
+          </ol>
+        </section>
+
+        <section class="sec">
+          <h3>Commissioning</h3>
+          <p>Commissioning takes the unit from switched on to ready for the public. Do it with the admin portal open on a laptop, because registering the kiosk needs both ends. An administrator must be present for step 6.</p>
+
+          <ol>
+            <li>Switch on the unit. The touchscreen shows the setup screen after a short start-up.</li>
+            <li>Tap <strong>Start commissioning</strong> and enter the installer code from the card in the box. The code stops working once commissioning is finished.</li>
+            <li>Tap <strong>Network</strong> and choose Ethernet or Wi-Fi (for Wi-Fi, enter the password). Tap <strong>Test connection</strong>. A tick means the kiosk can reach the backend. If you fitted a SIM, tap <strong>Test fallback</strong> as well.</li>
+            <li>In the admin portal, click <strong>Kiosks</strong>, then <strong>Add kiosk</strong>. Enter a name and location, for example Library ground floor, and click <strong>Generate code</strong>. The portal shows a registration code.</li>
+            <li>On the kiosk, tap <strong>Register</strong> and type the code. Within a minute the kiosk appears on the dashboard as Online.</li>
+            <li>In the portal, click <strong>Payments</strong>, then <strong>Link merchant account</strong>, and enter the credentials from your payment gateway provider. Payment is handled entirely by the gateway, and no card details ever reach the kiosk (Section 10.3).</li>
+            <li>Load paper and install the toner, following Section 11.2. The dashboard now shows both levels.</li>
+            <li>Set the prices as described in Section 8.4. Check every rate against the approved rate sheet.</li>
+            <li>Add the operators for this kiosk (Section 8.1) and check that the alert emails reach them.</li>
+            <li>Run a test print. First tap <strong>Print test page</strong> on the kiosk. Then do a real job from start to finish: upload a file from your phone, pay a small amount, and collect the printout. Refund the payment afterwards using Section 8.7.</li>
+            <li>Check the portal. The test job should appear under <strong>Transactions</strong>, the kiosk should show Online, and the paper and toner levels should be filled in.</li>
+            <li>Tap <strong>Finish commissioning</strong> and lock the enclosure. Do not open the kiosk to the public until it has passed acceptance testing.</li>
+          </ol>
+        </section>
+
+        <section class="sec">
+          <h3>Acceptance testing</h3>
+          <p>Acceptance testing proves that the kiosk does what Chapter 2 says it does. The administrator and a technician carry it out together before the public sees the kiosk, and again after the unit is moved or the printer or payment reader is repaired or replaced. Write down the date, the tester's name and the result of each test.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Test</th>
+                  <th scope="col">Expected result</th>
+                  <th scope="col">Pass</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Print a PDF uploaded from a phone by QR code</td>
+                  <td>The preview matches the file. The printout is complete and the right way up.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Print a DOCX file</td>
+                  <td>The document prints. Text and layout match the original closely, or the kiosk gives a clear message.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Print a JPG and a PNG image</td>
+                  <td>The image fills the page without cropping or stretching.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Change the print settings (two copies, double-sided, colour, A3 if fitted)</td>
+                  <td>The printout matches the choices, and the price charged matches the price shown.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Pay by UPI</td>
+                  <td>The kiosk confirms payment, printing starts only after that, and the transaction appears in the portal.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Pay by campus card</td>
+                  <td>The same as UPI.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Pay from a wallet balance</td>
+                  <td>The balance falls by exactly the price shown.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Deliberate payment failure (cancel the UPI payment on the phone)</td>
+                  <td>The kiosk says payment was not completed. Nothing prints and no money is taken.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Interrupt a paid job (technician opens the printer access panel mid-print)</td>
+                  <td>The kiosk shows a failure message. A refund is created automatically and shows as Refund issued in the portal.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Out-of-paper condition (remove the paper)</td>
+                  <td>The portal raises an alert within two minutes. The kiosk shows Out of service and takes no new jobs. Reloading paper clears the alert.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Network disconnection (unplug the Ethernet cable)</td>
+                  <td>The kiosk switches to the 4G fallback, or shows an unavailable message if there is none. After reconnection it returns to Online and records are not lost.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Document deletion after collection</td>
+                  <td>Within the time set in Section 10.2, the document is gone from both the kiosk and the backend.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
+                  <td>Status check</td>
+                  <td>The portal state and the kiosk's own status light agree in each of four conditions: ready, low paper, out of paper and offline.</td>
+                  <td>☐</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The kiosk passes only when every row is ticked. If a test fails, fix the cause and repeat that test, then repeat any test the fix could have affected. A payment fix, for example, means re-running all three payment rows. File the signed table with the installation record</p>
+
+        </section>
+
+        <section class="sec">
+          <h3>Launching to users</h3>
+          <p>A kiosk nobody knows about earns nothing, and one that opens without explanation gets a rush of confused first-time users. Plan the launch in four parts.</p>
+
+          <p>Put a poster next to the kiosk that shows the four steps (upload, choose, pay, collect), the QR code for phone upload, the price list and a support contact. Announce the kiosk a week before it opens: by email, on the campus notice boards and the learning platform, and through faculty who can mention it in class before the next submission. Say where it is, when it is available and what a page costs.</p>
+
+          <p>Staff the first week. Have an operator or a trained student volunteer near the kiosk, especially in the hours before the first deadline that falls after launch. Watching first-time users shows quickly where the instructions are unclear. Collect feedback with a short form behind a QR code on the poster, and keep a simple log of the questions people ask.</p>
+
+          <p>At the end of the first week, open the portal and look at failed jobs, refunds, busiest hours and the questions logged. Fix the signage or the settings where they point to a problem, and review again after 30 days.</p>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 10 ---- -->
+      <section class="chapter" id="ch-10">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Security and privacy</h2>
+          <hr class="rule">
+        </header>
+        <p>PrintPod focuses on protecting user documents, payment information and the physical kiosk.</p>
+
+        <section class="sec">
+          <h3>Document security</h3>
+          <p>User documents are protected during three stages: uploading, storage and printing. Documents are used only for the printing process. After printing, they are deleted to protect user privacy.</p>
+</section>
+
+        <section class="sec">
+          <h3>Document retention and deletion</h3>
+          <p>Documents are stored temporarily and deleted after printing. If a user uploads a document but does not complete the payment, the document is deleted after the allowed waiting period.</p>
+</section>
+
+        <section class="sec">
+          <h3>Payment security</h3>
+          <p>Payments are made through a payment gateway. The kiosk does not store sensitive payment details. If payment is completed but printing fails, the job status is checked and a refund is processed if required.</p>
+</section>
+
+        <section class="sec">
+          <h3>Physical security</h3>
+          <p>The kiosk is kept in a secure location with a lockable enclosure. Only authorised operators can access its internal parts. This helps protect the equipment and printed documents.</p>
+</section>
+
+        <section class="sec">
+          <h3>Access control</h3>
+          <p>PrintPod uses role-based access control. Users can upload documents, make payments and print. Operators can refill paper and toner and handle basic problems. Administrators can manage settings and check reports. Each role has access only to the features needed for its work.</p>
+</section>
+
+        <section class="sec">
+          <h3>Audit and compliance</h3>
+          <p>PrintPod maintains audit logs to record important activities and errors. Operators and administrators can check these logs to understand problems and take the necessary action. Access to these records is restricted to authorised personnel.</p>
+</section>
+      </section>
+
+      <!-- ---- Chapter 11 ---- -->
+      <section class="chapter" id="ch-11">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Maintenance</h2>
+          <hr class="rule">
+        </header>
+        <p>Regular maintenance helps PrintPod work properly and reduces interruptions during printing.</p>
+
+        <section class="sec">
+          <h3>Routine maintenance schedule</h3>
+          <p>The operator checks the kiosk regularly to ensure that the printer and other components are working properly. Paper and toner are refilled whenever required.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">Task</th><th scope="col">Frequency</th><th scope="col">Performed by</th><th scope="col">Time</th></tr>
+              </thead>
+              <tbody>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+</section>
+
+        <section class="sec">
+          <h3>Refilling consumables</h3>
+          <p>The operator checks the paper and toner levels. When they are low, the paper is refilled or the toner is replaced. A test print is performed if necessary to confirm that the printer is working properly.</p>
+</section>
+
+        <section class="sec">
+          <h3>Cleaning</h3>
+          <p>The touchscreen, scanner, enclosure and output tray are cleaned regularly. A soft cloth is used, and harsh chemicals are avoided to prevent damage to the equipment.</p>
+</section>
+
+        <section class="sec">
+          <h3>Software updates</h3>
+          <p>Software updates are performed by authorised personnel to improve system performance and reliability. After an update, the operator checks whether the kiosk and printer are working properly.</p>
+</section>
+
+        <section class="sec">
+          <h3>Service and support</h3>
+          <p>If a problem occurs, the operator checks the kiosk and takes the necessary steps to fix it. If the problem cannot be resolved, the administrator or technical support team is contacted.</p>
+</section>
+      </section>
+
+      <!-- ---- Chapter 12 ---- -->
+      <section class="chapter" id="ch-12">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Troubleshooting and FAQ</h2>
+          <hr class="rule">
+        </header>
+        <p>Troubleshooting helps identify problems, find their possible causes and apply suitable solutions.</p>
+
+        <section class="sec">
+          <h3>Troubleshooting table</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Problem</th>
+                  <th scope="col">Possible cause</th>
+                  <th scope="col">Solution</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Payment completed but printing did not start</strong></td>
+                  <td>This may happen because of a network or software problem.</td>
+                  <td>The payment and print-job status are checked, and a refund is processed if required.</td>
+                </tr>
+                <tr>
+                  <td><strong>Faded printing</strong></td>
+                  <td>This may be caused by low toner or a printer problem.</td>
+                  <td>The toner is replaced if necessary, and the printer is checked.</td>
+                </tr>
+                <tr>
+                  <td><strong>QR code not working</strong></td>
+                  <td>This may be caused by an invalid QR code or a scanner problem.</td>
+                  <td>A new QR code can be generated, or the operator can check the scanner.</td>
+                </tr>
+                <tr>
+                  <td><strong>Touchscreen not responding</strong></td>
+                  <td>This may be caused by a software or hardware problem.</td>
+                  <td>The operator checks the kiosk and restarts it if appropriate.</td>
+                </tr>
+                <tr>
+                  <td><strong>Paper jam</strong></td>
+                  <td>Paper may become stuck inside the printer.</td>
+                  <td>The operator clears the jam safely and checks whether the printer is working properly.</td>
+                </tr>
+                <tr>
+                  <td><strong>Upload failure</strong></td>
+                  <td>This may happen because of a network problem or an unsupported file.</td>
+                  <td>The connection and file format are checked before trying again.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+</section>
+
+        <section class="sec">
+          <h3>Error messages</h3>
+          <p>PrintPod displays error messages when problems occur. These messages help users and operators identify the issue and decide what action is needed. If the problem continues, the operator or technical support team is contacted.</p>
+</section>
+
+        <section class="sec">
+          <h3>Frequently asked questions</h3>
+          <aside class="note"><p><em>[Write 10–12 questions in the words a student would use, each with an answer of two or three sentences. Cover cost, double-sided printing, who can see my file, what happens to my file afterwards, refunds, opening hours, large documents, colour, collecting someone else's job, and what to do if the kiosk is busy. Mark each question as a bold or styled line above its answer.]</em></p></aside>
+        </section>
+      </section>
+
+    </section>
+
+    <!-- ============ PART 5 ============ -->
+    <section class="part" id="part-5">
+
+      <header class="part-opener">
+        <p class="part-opener__label" aria-hidden="true"></p>
+        <h2 class="part-title">The business case</h2>
+        <hr class="rule">
+      </header>
+
+      <!-- ---- Chapter 13 ---- -->
+      <section class="chapter" id="ch-13">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Payments and pricing</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences. State the pricing principle the chapter follows — for example that a page should cost a student no more than the campus shop charges, while covering consumables and a share of the capital cost.]</em></p></aside>
+
+        <section class="sec">
+          <h3>Accepted payment methods</h3>
+          <p>PrintPod supports three digital payment methods.</p>
+
+          <p>UPI: Students can scan a QR code using a UPI application and approve the payment. The kiosk starts printing only after payment confirmation.</p>
+
+          <p>Campus card: Students can pay using an enabled campus card linked to their account. The payment amount is deducted after successful authorisation.</p>
+
+          <p>Wallet balance: Students can use their available digital wallet balance to pay for printing. The balance is updated after the transaction is confirmed.</p>
+        </section>
+
+        <section class="sec">
+          <h3>How pricing works</h3>
+          <p>PrintPod follows a pay-per-page pricing model. The price depends on the paper size, colour option and printing mode.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Print type</th>
+                  <th scope="col">Rate per page (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Black and white, A4</td>
+                  <td>₹2</td>
+                </tr>
+                <tr>
+                  <td>Colour, A4</td>
+                  <td>₹10</td>
+                </tr>
+                <tr>
+                  <td>Black and white, A3</td>
+                  <td>₹4</td>
+                </tr>
+                <tr>
+                  <td>Colour, A3</td>
+                  <td>₹20</td>
+                </tr>
+                <tr>
+                  <td>Double-sided discount</td>
+                  <td>10% discount on eligible printing charges</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+        <section class="sec">
+          <h3>Institutional pricing options</h3>
+          <p>PrintPod allows institutions to configure pricing according to their academic requirements. Administrators can provide a limited free-print quota for students, subsidised printing for selected courses and departmental billing for faculty use.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Failed jobs and refunds</h3>
+          <p>PrintPod initiates printing only after payment confirmation. If a job fails before any page is delivered, the full amount is refunded automatically. If printing stops part-way, the user receives a refund for the pages that were not printed. Duplicate payments are also refunded.</p>
+
+          <p>Wallet and campus-card refunds are credited within minutes of the failure being recorded. UPI refunds are returned to the original bank account, although the time taken to appear depends on the bank. If the refund does not arrive, the student can contact the campus operator with the transaction reference.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Revenue handling</h3>
+          <p>Payments are processed through the configured payment gateway. The institution receives settlements according to the gateway's settlement schedule, after applicable fees and adjustments. The administrator portal records payments, refunds and net revenue to support reconciliation. Revenue reports can be exported for financial review.</p>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 14 ---- -->
+      <section class="chapter" id="ch-14">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Cost-benefit analysis</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences. State that every figure in this chapter is an estimate for a concept study, and that the assumptions are listed first so a reader can test them.]</em></p></aside>
+
+        <section class="sec">
+          <h3>Assumptions</h3>
+          <p>The following estimates are based on a hypothetical university campus. All figures are projections for academic demonstration.</p>
+
+          <ul>
+            <li>Student population: 3,000</li>
+            <li>Number of kiosks: 2</li>
+            <li>Average usage: 250 printed pages per kiosk per day</li>
+            <li>Operating days: 300 days per year</li>
+            <li>Average revenue: ₹3 per printed page</li>
+            <li>Currency: Indian rupees (₹)</li>
+          </ul>
+        </section>
+
+        <section class="sec">
+          <h3>Capital cost</h3>
+          <p>The estimated one-time investment for one PrintPod kiosk is shown below.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Item</th>
+                  <th scope="col">Estimated cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Printer and printing hardware</td>
+                  <td>₹35,000</td>
+                </tr>
+                <tr>
+                  <td>Touchscreen and control unit</td>
+                  <td>₹15,000</td>
+                </tr>
+                <tr>
+                  <td>Payment hardware</td>
+                  <td>₹5,000</td>
+                </tr>
+                <tr>
+                  <td>Enclosure and locking system</td>
+                  <td>₹10,000</td>
+                </tr>
+                <tr>
+                  <td>Installation and commissioning</td>
+                  <td>₹5,000</td>
+                </tr>
+                <tr>
+                  <td>Initial paper and toner</td>
+                  <td>₹3000</td>
+                </tr>
+                <tr>
+                  <td>Signage and launch materials</td>
+                  <td>₹2000</td>
+                </tr>
+                <tr>
+                  <td>Total per kiosk</td>
+                  <td><em>₹</em>75,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="sec">
+          <h3>Operating cost</h3>
+          <p>Estimated monthly operating expenses for one kiosk are:</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Expense</th>
+                  <th scope="col">Monthly cost</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Paper and toner</td>
+                  <td>₹5,000</td>
+                </tr>
+                <tr>
+                  <td>Maintenance</td>
+                  <td>₹1,000</td>
+                </tr>
+                <tr>
+                  <td>Software and backend</td>
+                  <td>₹1,000</td>
+                </tr>
+                <tr>
+                  <td>Electricity</td>
+                  <td>₹500</td>
+                </tr>
+                <tr>
+                  <td>Internet connectivity</td>
+                  <td>₹500</td>
+                </tr>
+                <tr>
+                  <td>Total per month</td>
+                  <td>₹8,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The estimated operating cost for two kiosks is ₹16,000 per month. Actual expenses will depend on usage, consumable prices and maintenance requirements.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Revenue projection</h3>
+          <p>Assuming each kiosk prints 250 pages per day at an average revenue of ₹3 per page:</p>
+
+          <ul>
+            <li>Daily revenue per kiosk = 250 × ₹3 = ₹750</li>
+            <li>Annual revenue per kiosk = ₹750 × 300 = ₹2,25,000</li>
+            <li>Annual revenue for two kiosks = ₹2,25,000 × 2 = ₹4,50,000</li>
+          </ul>
+
+          <p>The projected annual operating cost for two kiosks is ₹1,92,000.</p>
+
+          <p>Therefore, the projected annual operating surplus before recovering the initial investment is:</p>
+
+          <p>₹4,50,000 − ₹1,92,000 = ₹2,58,000</p>
+
+          <p>These estimates exclude taxes, payment gateway fees, depreciation and other unlisted expenses. They also assume that the stated average revenue per page is achieved.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Break-even analysis</h3>
+          <p>The initial investment for two kiosks is ₹1,50,000. Based on the assumptions above, the monthly revenue is ₹37,500 per kiosk, while the monthly operating cost is ₹8,000.</p>
+
+          <p>The projected monthly operating surplus is ₹29,500 per kiosk. Therefore, the estimated break-even period is:</p>
+
+          <p>₹75,000 ÷ ₹29,500 ≈ 2.5 months per kiosk.</p>
+
+          <p>This is a simplified estimate assuming stable usage from launch. Actual break-even may take longer because of lower initial demand, maintenance issues and unexpected costs.</p>
+
+          <p>In a lower-usage scenario of 100 pages per day per kiosk, monthly revenue would be ₹9,000, assuming 30 operating days and ₹3 per page. After ₹8,000 in monthly operating expenses, only ₹1,000 remains per kiosk. The initial investment would take much longer to recover. This demonstrates that customer demand is a major factor in the project's financial viability.</p>
+
+          <p>Figure 14.1: Insert a 24-month cumulative cost-versus-revenue chart using the final approved assumptions. Mark the break-even point clearly.</p>
+
+          <figure class="figure">
+            <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert break-even chart]</span></div>
+            <figcaption>Break-even analysis: cumulative cost against cumulative revenue per kiosk.</figcaption>
+          </figure>
+        </section>
+
+        <section class="sec">
+          <h3>Benefits that are not financial</h3>
+          <p>PrintPod offers several benefits beyond revenue generation:</p>
+
+          <ul>
+            <li>Extended availability: Students can print whenever the campus is open without depending on counter timings.</li>
+            <li>Reduced waiting: Self-service printing can reduce queues during assignment submissions and examination periods.</li>
+            <li>Improved privacy: Documents are released for collection by the person who submitted them.</li>
+            <li>Reduced staff workload: Staff can spend less time handling routine printing requests.</li>
+            <li>Better accountability: Digital transaction records help administrators investigate payment disputes and monitor usage.</li>
+          </ul>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 15 ---- -->
+      <section class="chapter" id="ch-15">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Case study</h2>
+          <hr class="rule">
+        </header>
+        <p><strong>Note: This is an illustrative scenario developed for an academic project. It does not describe an actual deployment.</strong></p>
+
+        <section class="sec">
+          <h3>The scenario</h3>
+          <p>Consider a hypothetical university with 3,000 students and 10 academic departments. Before introducing PrintPod, students depend on a library printing counter and nearby commercial print shops. These services have limited operating hours and become crowded before assignment deadlines.</p>
+
+          <p>The existing arrangement also requires manual payment collection and staff involvement. Students may need to wait in queues, carry cash and worry about the privacy of their documents.</p>
+
+          <p>The university proposes a self-service printing system to improve convenience, reduce manual work and provide better transaction records.</p>
+        </section>
+
+        <section class="sec">
+          <h3>The deployment</h3>
+          <p>The university proposes installing two PrintPod kiosks at locations with high student traffic.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Location</th>
+                  <th scope="col">Justification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Central library entrance</td>
+                  <td>Convenient for students accessing study materials and preparing assignments</td>
+                </tr>
+                <tr>
+                  <td>Main academic block</td>
+                  <td>Accessible to students from multiple departments</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The proposed deployment takes place in three phases: site preparation and installation, system testing and commissioning, and a monitored public launch. During the initial period, operators will check printer status, consumable levels and payment records.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Projected results after six months</h3>
+          <p>The following table presents illustrative projections rather than measured results.</p>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Indicator</th>
+                  <th scope="col">Before deployment</th>
+                  <th scope="col">Projected after deployment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Printing availability</td>
+                  <td>Limited counter hours</td>
+                  <td>Throughout campus opening hours</td>
+                </tr>
+                <tr>
+                  <td>Printing process</td>
+                  <td>Staff-assisted</td>
+                  <td>Self-service</td>
+                </tr>
+                <tr>
+                  <td>Payment method</td>
+                  <td>Primarily manual</td>
+                  <td>Digital</td>
+                </tr>
+                <tr>
+                  <td>Transaction records</td>
+                  <td>Manual or incomplete</td>
+                  <td>Centralised digital records</td>
+                </tr>
+                <tr>
+                  <td>Waiting time</td>
+                  <td>Queues during peak hours</td>
+                  <td>Potentially shorter waits</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>The university could use kiosk records and student feedback to measure actual performance after deployment. Numerical improvements should be reported only after sufficient operational data has been collected.</p>
+        </section>
+
+        <section class="sec">
+          <h3>What the scenario reveals</h3>
+          <p>The scenario highlights three important observations. First, kiosk location strongly influences usage because students prefer services along their normal campus routes. Second, paper and toner must be replenished regularly to avoid interruptions during peak periods. Third, reliable network connectivity and payment confirmation are essential for smooth operation.</p>
+
+          <p>A limitation is that two kiosks may not meet demand during major submission periods. The university should review usage data, failed jobs and waiting times before deciding whether to expand the service.</p>
+        </section>
+      </section>
+
+      <!-- ---- Chapter 16 ---- -->
+      <section class="chapter" id="ch-16">
+        <header class="chapter-opener">
+          <p class="chapter-opener__eyebrow">Chapter</p>
+          <p class="chapter-opener__num" aria-hidden="true"></p>
+          <h2 class="chapter-title">Future scope</h2>
+          <hr class="rule">
+        </header>
+        <aside class="note"><p><em>[Chapter opening: 2 sentences separating what could be added soon from what would need a different design.]</em></p></aside>
+
+        <section class="sec">
+          <h3>Near-term enhancements</h3>
+          <p>PrintPod could be improved through features such as document templates for common academic forms, multilingual screen instructions, scan-to-email functionality and uploads from cloud storage. These additions could make the kiosk easier to use and reduce the steps required to print frequently used documents.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Longer-term possibilities</h3>
+          <p>Future versions could support ID card printing, document binding, lamination and integration with the institution's learning management system (LMS) or enterprise resource planning (ERP) platform. A multi-campus dashboard could also help administrators monitor several kiosks from one location.</p>
+        </section>
+
+        <section class="sec">
+          <h3>Limitations of the current design</h3>
+          <p>The proposed design has some limitations:</p>
+
+          <ul>
+            <li>It depends on a reliable power supply and network connection for payment confirmation and remote monitoring.</li>
+            <li>Paper jams, toner shortages and hardware failures can interrupt printing.</li>
+            <li>Initial installation and recurring maintenance require financial investment.</li>
+            <li>Actual demand and profitability may vary across campuses.</li>
+          </ul>
+
+          <p>These limitations should be evaluated during pilot testing before the system is deployed on a larger scale.</p>
+        </section>
+      </section>
+
+    </section>
+
+    <!-- ============ BACK MATTER ============ -->
+    <section class="matter" id="back-matter">
+
+      <section class="matter__item">
+        <h2 class="matter-title">Glossary</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Term</th>
+                <th scope="col">Definition</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Audit log</td>
+                <td>A chronological record of system activities, including payments, refunds and administrative actions.</td>
+              </tr>
+              <tr>
+                <td>Backend</td>
+                <td>The software system that processes requests, manages print jobs and stores transaction records.</td>
+              </tr>
+              <tr>
+                <td>Duplex printing</td>
+                <td>Printing on both sides of a sheet of paper.</td>
+              </tr>
+              <tr>
+                <td>DPI (dots per inch)</td>
+                <td>A measurement of print resolution that indicates the level of detail in printed output.</td>
+              </tr>
+              <tr>
+                <td>Encryption at rest</td>
+                <td>Protection applied to stored data so that unauthorised users cannot easily read it.</td>
+              </tr>
+              <tr>
+                <td>Kiosk</td>
+                <td>A self-service machine that allows users to complete tasks without continuous staff assistance.</td>
+              </tr>
+              <tr>
+                <td>Payment gateway</td>
+                <td>A service that processes digital payments and confirms whether transactions are successful.</td>
+              </tr>
+              <tr>
+                <td>Print queue</td>
+                <td>A list of print jobs waiting to be processed by the printer.</td>
+              </tr>
+              <tr>
+                <td>Print spooler</td>
+                <td>Software that manages print jobs and sends them to the printer in the correct order.</td>
+              </tr>
+              <tr>
+                <td>QR code</td>
+                <td>A two-dimensional code that can be scanned by a phone to open a link or initiate an action.</td>
+              </tr>
+              <tr>
+                <td>Toner yield</td>
+                <td>The estimated number of pages that a toner cartridge can print before replacement.</td>
+              </tr>
+              <tr>
+                <td>UPI</td>
+                <td>Unified Payments Interface, an Indian system that enables instant digital payments between bank accounts.</td>
+              </tr>
+              <tr>
+                <td>Uptime</td>
+                <td>The amount or proportion of time a system remains operational and available.</td>
+              </tr>
+              <tr>
+                <td>Wallet balance</td>
+                <td>The amount of money available in a digital wallet for making payments.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <section class="matter__item">
+        <h2 class="matter-title">References</h2>
+        <p>Use a consistent citation style throughout the ebook. The following sources are suitable starting points for the payment and security sections. Add the exact printer manufacturer's datasheet once the hardware model is finalised.</p>
+
+        <ol>
+          <li>National Payments Corporation of India (NPCI). Unified Payments Interface (UPI). Official website: <a href="https://www.npci.org.in/">NPCI</a>.</li>
+          <li>Reserve Bank of India (RBI). Guidelines and circulars on digital payments and failed transactions. Official website: <a href="https://www.rbi.org.in/">Reserve Bank of India</a>.</li>
+          <li>National Institute of Standards and Technology (NIST). Security and Privacy Controls for Information Systems and Organizations, SP 800-53 Rev. 5. <a href="https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final">Read the publication</a>.</li>
+          <li>World Wide Web Consortium (W3C). Web Content Accessibility Guidelines (WCAG) 2.2. <a href="https://www.w3.org/TR/WCAG22/">Read the guidelines</a>.</li>
+        </ol>
+
+        <p>These references should be cited in the relevant chapters, and the final list should include only sources actually consulted. The projected PrintPod specifications, costs and case-study results are illustrative assumptions rather than facts established by these references.</p>
+      </section>
+
+      <section class="matter__item">
+        <h2 class="matter-title">About the team</h2>
+        <aside class="note"><p><em>[Fill in each member’s full name and roll number, one row per member.]</em></p></aside>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">Name</th><th scope="col">Roll no</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>[Team member name]</td><td>[Roll no]</td></tr>
+              <tr><td>[Team member name]</td><td>[Roll no]</td></tr>
+              <tr><td>[Team member name]</td><td>[Roll no]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="matter__item">
+        <h2 class="matter-title">Document information</h2>
+        <aside class="note"><p><em>[Fill in the document metadata below and keep it current. Update the version and date on every submitted revision.]</em></p></aside>
+
+        <dl class="docinfo">
+          <dt>Title</dt><dd>PrintPod — Self-service document printing for university campuses</dd>
+          <dt>Version</dt><dd>[Version number]</dd>
+          <dt>Date</dt><dd>[Date of this revision]</dd>
+          <dt>Course</dt><dd>Technical Content Writing</dd>
+          <dt>Institution</dt><dd>Amrita Vishwa Vidyapeetham</dd>
+          <dt>Authors</dt><dd>[Team member names]</dd>
+          <dt>Contact</dt><dd>[email address]</dd>
+          <dt>Status</dt><dd>[Draft, under review or final]</dd>
+        </dl>
+      </section>
+
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

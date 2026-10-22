@@ -1,0 +1,933 @@
+/* ==========================================================================
+   PrintPod — ebook stylesheet
+   --------------------------------------------------------------------------
+   Sections, in order:
+
+     01  Design tokens (colour, type, spacing)
+     02  Reset and base typography
+     03  Skip link and reading progress bar
+     04  Top chrome (hamburger, running head, toggles)
+     05  Page layout (sidebar + content grid)
+     06  Sidebar and table of contents
+     07  Heading counters (parts, chapters, sections, figures)
+     08  Title page
+     09  Part openers
+     10  Chapter openers
+     11  Front and back matter
+     12  Body text
+     13  Guidance notes (placeholder blocks)
+     14  Figures
+     15  Tables
+     16  Checklists and callouts
+     17  Document information list
+     18  Responsive: tablet and mobile drawer
+     19  Print stylesheet
+
+   Edit only inside the section you need. Each one starts with a banner
+   comment, so searching for e.g. "15  Tables" jumps straight there.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   01  DESIGN TOKENS
+   --------------------------------------------------------------------------
+   Paper and ink. Warm paper stock, dense warm black, and one accent borrowed
+   from print production — the burnt red of a registration mark.
+
+   These seven colour tokens are the ONLY place a colour value is written.
+   Every rule below reads from a variable; if you find yourself typing a hex
+   value anywhere else in this file, the palette needs a new token instead.
+
+   The accent should appear roughly a dozen times on a page and never as a
+   fill behind a large area. It is reserved for:
+     - chapter and part numbers, and section numbers
+     - links, and the link hover underline
+     - the left rule on callout boxes
+     - the active item marker in the sidebar
+     - the reading progress bar
+   Headings, buttons and backgrounds stay ink on paper.
+
+   Contrast, measured against --paper:
+     light   ink 16.5:1   accent 5.7:1   ink-muted 5.4:1
+     dark    ink 14.3:1   accent 5.1:1   ink-muted 5.8:1
+   Body text clears 7:1 and accent link text clears 4.5:1 in both themes.
+   ========================================================================== */
+
+:root {
+  /* Type */
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans: Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --measure: 68ch;              /* target line length for body text */
+
+  /* Light palette — paper and ink */
+  --paper:      #FBFAF7;        /* page background, warm off-white */
+  --paper-sunk: #F2EFE9;        /* table headers, callout fills */
+  --ink:        #1C1B19;        /* body text, warm near-black */
+  --ink-muted:  #6B675F;        /* captions, guidance notes, labels */
+  --rule:       #DDD8CE;        /* hairlines, table rules, figure borders */
+  --accent:     #B23A1E;        /* registration-mark red */
+  --accent-sunk:#8E2D16;        /* link hover, active states */
+
+  /* Derived, not a new colour: the drawer scrim must darken the page in both
+     themes, so it is mixed from whichever palette colour is the dark one. */
+  --scrim: color-mix(in srgb, var(--ink) 55%, transparent);
+
+  /* Metrics */
+  --chrome-h: 3.25rem;          /* height of the fixed top bar */
+  --sidebar-w: 17.5rem;
+}
+
+/* Dark palette — applied when the OS prefers dark and the reader has not
+   explicitly chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #1A1917;
+    --paper-sunk: #232119;
+    --ink:        #ECE7DD;
+    --ink-muted:  #9A948A;
+    --rule:       #332F27;
+    --accent:     #D96A47;
+    --accent-sunk:#E88A6B;      /* hover lifts rather than darkens */
+    --scrim: color-mix(in srgb, var(--paper) 72%, transparent);
+  }
+}
+
+/* Dark palette — applied when the reader has chosen dark explicitly. */
+:root[data-theme="dark"] {
+  --paper:      #1A1917;
+  --paper-sunk: #232119;
+  --ink:        #ECE7DD;
+  --ink-muted:  #9A948A;
+  --rule:       #332F27;
+  --accent:     #D96A47;
+  --accent-sunk:#E88A6B;
+  --scrim: color-mix(in srgb, var(--paper) 72%, transparent);
+}
+
+
+/* ==========================================================================
+   02  RESET AND BASE TYPOGRAPHY
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+  margin: 0;
+}
+
+p { margin: 0 0 1.15em; }
+p:last-child { margin-bottom: 0; }
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+a:hover {
+  color: var(--accent-sunk);
+  text-decoration-color: var(--accent-sunk);
+  text-decoration-thickness: 2px;
+}
+
+hr.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+hr.rule--short { width: 4rem; }
+
+/* Visible focus state on every interactive control. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* Anchor targets clear the fixed top bar. */
+h2, h3, .chapter, .part, .matter__item { scroll-margin-top: calc(var(--chrome-h) + 1.5rem); }
+
+
+/* ==========================================================================
+   03  SKIP LINK AND READING PROGRESS BAR
+   ========================================================================== */
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 200;
+  padding: 0.5rem 0.9rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  border-radius: 2px;
+  transform: translateY(-200%);
+}
+.skip-link:focus { transform: translateY(0); }
+
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  z-index: 120;
+  background: transparent;
+}
+.progress__bar {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transform-origin: 0 50%;
+}
+
+
+/* ==========================================================================
+   04  TOP CHROME — hamburger, running head, document toggles
+   ========================================================================== */
+
+.chrome {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  height: var(--chrome-h);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 clamp(0.75rem, 3vw, 1.5rem);
+  /* Solid paper and a hairline — no translucency, no blur. */
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.chrome__running-head {
+  flex: 1 1 auto;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.chrome__controls {
+  display: flex;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.chrome__btn {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  padding: 0.35rem 0.7rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.chrome__btn:hover { color: var(--ink); border-color: var(--ink-muted); }
+/* Pressed state carries no colour — it lifts with weight, a hairline and a
+   slight shift to sunk paper. */
+.chrome__btn[aria-pressed="true"] {
+  color: var(--ink);
+  font-weight: 500;
+  border-color: var(--ink-muted);
+  background: var(--paper-sunk);
+}
+
+/* Hamburger — hidden on wide screens, shown by section 18. */
+.chrome__hamburger {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 2px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.chrome__bars {
+  position: relative;
+  width: 14px;
+  height: 9px;
+  border-top: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+}
+.chrome__bars::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  border-top: 1.5px solid currentColor;
+}
+
+
+/* ==========================================================================
+   05  PAGE LAYOUT
+   ========================================================================== */
+
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  padding-top: var(--chrome-h);
+}
+
+.content {
+  min-width: 0;
+  padding: 0 clamp(1.25rem, 5vw, 4rem) 8rem;
+}
+
+/* The measure: chapters and matter sections are capped and centred, while
+   part openers and the title page run the full width of the column. */
+.chapter,
+.matter__item {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+
+/* ==========================================================================
+   06  SIDEBAR AND TABLE OF CONTENTS
+   Markup is generated in script.js from the h2/h3 headings in the DOM.
+   ========================================================================== */
+
+.sidebar {
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.sidebar__inner {
+  position: sticky;
+  top: var(--chrome-h);
+  max-height: calc(100vh - var(--chrome-h));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2rem 1.25rem 3rem 1.5rem;
+}
+
+.sidebar__title {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.toc__fallback {
+  font-size: 0.8125rem;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+.toc__group { margin-bottom: 1.1rem; }
+
+/* Part row — the collapse trigger */
+.toc__part {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  width: 100%;
+  appearance: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0.3rem 0;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* Part labels stay ink — the accent in the sidebar is reserved for the
+   active item marker. */
+.toc__part-label { color: var(--ink-muted); flex: 0 0 auto; }
+.toc__part-title { flex: 1 1 auto; }
+
+.toc__chev {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1.5px solid var(--ink-muted);
+  border-bottom: 1.5px solid var(--ink-muted);
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+.toc__part[aria-expanded="false"] .toc__chev { transform: rotate(-45deg); }
+
+/* Chapter and section rows */
+.toc__list {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0 0 0 0.1rem;
+  border-left: 1px solid var(--rule);
+}
+.toc__part[aria-expanded="false"] + .toc__list { display: none; }
+
+.toc__item a {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.22rem 0.4rem 0.22rem 0.75rem;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+.toc__item a:hover { color: var(--ink); }
+
+.toc__num {
+  flex: 0 0 auto;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+}
+
+.toc__item--chapter > a { font-weight: 500; color: var(--ink); }
+.toc__item--chapter { margin-top: 0.3rem; }
+.toc__item--sec > a { padding-left: 1.5rem; }
+
+/* Current section */
+.toc__item a.is-active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--paper-sunk);
+}
+.toc__item a.is-active .toc__num { color: var(--accent); }
+
+/* Drawer scrim (mobile only) */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--ink);                                   /* fallback */
+  background: var(--scrim);
+  border: 0;
+}
+
+
+/* ==========================================================================
+   07  HEADING COUNTERS
+   All numbering is generated here. Never type a chapter or section number
+   into index.html.
+   ========================================================================== */
+
+.content { counter-reset: part chapter; }
+.part    { counter-increment: part; }
+.chapter { counter-increment: chapter; counter-reset: sec fig; }
+.sec     { counter-increment: sec; }
+
+.part-opener__label::before   { content: "Part " counter(part); }
+.chapter-opener__num::before  { content: counter(chapter); }
+
+.sec > h3::before {
+  content: counter(chapter) "." counter(sec);
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.figure    { counter-increment: fig; }
+figcaption::before {
+  content: "Figure " counter(chapter) "." counter(fig) " — ";
+  font-weight: 600;
+  color: var(--ink-muted);
+}
+
+
+/* ==========================================================================
+   08  TITLE PAGE
+   ========================================================================== */
+
+.titlepage {
+  min-height: calc(100vh - var(--chrome-h));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  text-align: center;
+  padding: 4rem 0;
+}
+
+.titlepage__title {
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0;
+}
+
+.titlepage__subtitle {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(1.0625rem, 2.4vw, 1.375rem);
+  font-style: italic;
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+
+.titlepage__imprint {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+
+/* ==========================================================================
+   09  PART OPENERS
+   ========================================================================== */
+
+.part-opener {
+  padding: 10rem 0 4rem;
+  text-align: center;
+}
+
+.part-opener__label {
+  margin: 0 0 2rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.part-title {
+  font-size: clamp(2rem, 5.5vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  margin: 0 0 3.5rem;
+}
+
+.part-opener .rule { max-width: var(--measure); margin: 0 auto; }
+
+
+/* ==========================================================================
+   10  CHAPTER OPENERS
+   ========================================================================== */
+
+.chapter-opener { padding: 6rem 0 2.25rem; }
+
+.chapter-opener__eyebrow {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.chapter-opener__num {
+  margin: 0;
+  font-size: clamp(3.5rem, 11vw, 5.5rem);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+  font-variant-numeric: lining-nums;
+}
+
+.chapter-title {
+  font-size: clamp(1.625rem, 4vw, 2.25rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0.5rem 0 1.75rem;
+}
+
+
+/* ==========================================================================
+   11  FRONT AND BACK MATTER
+   ========================================================================== */
+
+.matter__item { padding-top: 5rem; }
+
+.matter-title {
+  font-size: clamp(1.5rem, 3.5vw, 1.875rem);
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+
+/* ==========================================================================
+   12  BODY TEXT
+   ========================================================================== */
+
+.sec { padding-top: 2.75rem; }
+
+.sec > h3 {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.content ul:not(.checklist):not(.toc__list),
+.content ol {
+  padding-left: 1.4rem;
+  margin: 0 0 1.15em;
+}
+.content li { margin-bottom: 0.4em; }
+
+
+/* ==========================================================================
+   13  GUIDANCE NOTES — placeholder blocks
+   These are instructions to the author, not body text. They are deliberately
+   indented, grey and ruled so they cannot be mistaken for finished prose.
+   The "Hide guidance notes" toggle adds .notes-hidden to <html>.
+   ========================================================================== */
+
+.note {
+  margin: 0 0 1.5rem;
+  padding: 0.1rem 0 0.1rem 1.25rem;
+  border-left: 2px solid var(--rule);
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+.note em { font-style: italic; }
+
+.notes-hidden .note { display: none; }
+
+/* When notes are hidden, sections would otherwise collapse to bare headings;
+   keep a little air so the preview still reads as a book. */
+.notes-hidden .sec { padding-bottom: 0.5rem; }
+
+
+/* ==========================================================================
+   14  FIGURES
+   ========================================================================== */
+
+.figure {
+  margin: 2rem 0 2.25rem;
+}
+
+.figure__box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 13rem;
+  padding: 2rem 1rem;
+  border: 1px solid var(--rule);
+  background: var(--paper-sunk);
+}
+.figure__box--tall { min-height: 20rem; }
+
+.figure__box-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+figcaption {
+  margin-top: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+
+/* ==========================================================================
+   15  TABLES
+   No vertical rules. Hairline horizontal rules. Sans header row with a
+   subtle background on the header only.
+   ========================================================================== */
+
+.table-wrap {
+  margin: 1.75rem 0 2.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+thead th {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink-muted);
+  background: var(--paper-sunk);
+  padding: 0.6rem 0.75rem;
+  /* Heavier rule, same colour — hierarchy from weight, not a second grey. */
+  border-bottom: 2px solid var(--rule);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 0.6rem 0.75rem;
+  height: 2.25rem;              /* keeps empty starter rows visible */
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+  color: var(--ink);
+}
+tbody tr:last-child td { border-bottom: 2px solid var(--rule); }
+
+/* On wide screens let tables and figures sit slightly outside the measure. */
+@media (min-width: 1180px) {
+  .table-wrap, .figure { margin-inline: -3ch; }
+}
+
+
+/* ==========================================================================
+   16  CHECKLISTS AND CALLOUTS
+   ========================================================================== */
+
+.checklist {
+  list-style: none;
+  margin: 1.5rem 0 2rem;
+  padding: 0;
+}
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.checklist input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0.35rem 0 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.checklist label {
+  font-size: 0.9375rem;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.callout {
+  margin: 1.75rem 0 2rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--paper-sunk);
+  border-left: 2px solid var(--accent);
+}
+.callout__label {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);      /* the accent is already on the left rule */
+}
+.callout p:last-child { margin-bottom: 0; }
+
+
+/* ==========================================================================
+   17  DOCUMENT INFORMATION LIST
+   ========================================================================== */
+
+.docinfo {
+  display: grid;
+  grid-template-columns: 11ch 1fr;
+  gap: 0.5rem 1.5rem;
+  margin: 1.5rem 0 0;
+}
+.docinfo dt {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  padding-top: 0.25rem;
+}
+.docinfo dd { margin: 0; font-size: 0.9375rem; }
+
+
+/* ==========================================================================
+   18  RESPONSIVE — tablet and mobile drawer
+   ========================================================================== */
+
+@media (max-width: 1100px) {
+  :root { --sidebar-w: 15rem; }
+}
+
+/* Below 900px the sidebar becomes an off-canvas drawer. */
+@media (max-width: 899px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+
+  .chrome__hamburger { display: inline-flex; }
+
+  .sidebar {
+    position: fixed;
+    top: var(--chrome-h);
+    bottom: 0;
+    left: 0;
+    z-index: 95;
+    width: min(85vw, 20rem);
+    border-right: 1px solid var(--rule);
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    will-change: transform;
+  }
+  .nav-open .sidebar { transform: translateX(0); }
+
+  .sidebar__inner {
+    position: static;
+    max-height: none;
+    height: 100%;
+  }
+
+  .nav-open { overflow: hidden; }
+
+  .part-opener { padding: 5rem 0 2.5rem; }
+  .chapter-opener { padding: 3.5rem 0 1.5rem; }
+  .matter__item { padding-top: 3rem; }
+}
+
+@media (max-width: 599px) {
+  body { font-size: 1rem; }
+
+  .chrome { gap: 0.5rem; }
+  .chrome__running-head { display: none; }
+  .chrome__hamburger-text { display: none; }
+  .chrome__btn { padding: 0.3rem 0.5rem; font-size: 0.6875rem; }
+
+  .content { padding-left: 1rem; padding-right: 1rem; padding-bottom: 5rem; }
+
+  .docinfo { grid-template-columns: 1fr; gap: 0.1rem 0; }
+  .docinfo dd { margin-bottom: 0.85rem; }
+
+  .figure__box { min-height: 10rem; }
+  .figure__box--tall { min-height: 14rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+
+/* ==========================================================================
+   19  PRINT STYLESHEET
+   Target: printing to PDF produces something close to the finished ebook.
+   ========================================================================== */
+
+@media print {
+
+  /* Re-assert the light palette so a reader printing in dark mode still gets
+     ink on paper. Same values as :root — the paper stock does the rest, so
+     nothing here is pure white or pure black. */
+  :root,
+  :root[data-theme="dark"],
+  :root[data-theme="light"] {
+    --paper:      #FBFAF7;
+    --paper-sunk: #F2EFE9;
+    --ink:        #1C1B19;
+    --ink-muted:  #6B675F;
+    --rule:       #DDD8CE;
+    --accent:     #B23A1E;
+    --accent-sunk:#8E2D16;
+  }
+
+  @page { margin: 20mm 18mm; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 10.5pt;
+    line-height: 1.55;
+  }
+
+  /* Hide all UI chrome. */
+  .chrome,
+  .sidebar,
+  .scrim,
+  .progress,
+  .skip-link { display: none !important; }
+
+  .layout { display: block; padding-top: 0; }
+  .content { padding: 0; }
+  .chapter, .matter__item { max-width: none; margin: 0; }
+
+  /* Openers start a new page. */
+  .part-opener,
+  .chapter-opener,
+  .matter__item { break-before: page; page-break-before: always; }
+  #front-matter > .matter__item:first-child { break-before: avoid; page-break-before: avoid; }
+
+  .titlepage {
+    min-height: 0;
+    height: 92vh;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .part-opener { padding: 25vh 0 2rem; }
+  .chapter-opener { padding: 0 0 1.5rem; }
+
+  /* Keep blocks whole. */
+  table, figure, .table-wrap, .callout, .checklist, .docinfo {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  thead { display: table-header-group; }
+  tr, img { break-inside: avoid; page-break-inside: avoid; }
+
+  h2, h3 { break-after: avoid; page-break-after: avoid; }
+
+  .figure__box { border: 1px solid var(--rule); min-height: 9rem; }
+
+  /* Notes still print — this is a working draft — but stay visually distinct. */
+  .note { color: var(--ink-muted); border-left: 2px solid var(--rule); }
+
+  a { color: var(--ink); text-decoration: none; }
+}
