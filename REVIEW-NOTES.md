@@ -36,6 +36,7 @@ item is for the team to decide.
 | 15 | Chapter 14 recomputed on the team's figures: **500 pages/day at ₹2/page**, low-usage case 250/day | 14.1, 14.4, 14.5 |
 | 16 | 5.3's consumable life recomputed, since it follows from Chapter 14's volume | 5.3 |
 | 17 | Outright errors corrected and terminology normalised to one house style | 1.1, 7.1-7.5, 7.7, 8.5, 8.7, 9.5, 14.2 |
+| 18 | "ATM Printer" renamed, 5.2 tray capacities filled, notes-to-self cut from References, Document information completed | 2.1, 5.2, References, Document information |
 
 Consequences worth noting:
 
@@ -147,9 +148,13 @@ single-use; and 9.5 gains an acceptance test for collecting a website upload.
 7.1 and 7.2 still describe USB and email upload (item C1 below). Change 11 did
 not touch that contradiction.
 
-Still unfilled in the webpage: `[Version number]`, `[Date of this revision]`,
-`[email address]` and `[Draft, under review or final]` in Document information,
-section 12.3, and the chapter introductions for 1-6, 13, 14 and 16.
+Still unfilled in the webpage, by the team's decision that these stay theirs to
+write: **section 12.3 (Frequently asked questions)** and the **chapter
+introductions for 1-6, 13, 14 and 16**. Everything else in the ebook is
+complete.
+
+Also outstanding, but not writing: the figure placeholders in 3.2, 4.1, 7.2-7.6
+and 14.5. Figure 5.1 is drawn.
 
 ---
 
@@ -456,7 +461,9 @@ methods — Scan QR Code, USB Drive, Email, Web Code — including:
 One of these had to go. It also affected 5.1, which lists the front-face
 components without a USB port.
 
-### C2. The product is called something else in 2.1
+### C2. The product is called something else in 2.1 - FIXED (change 18)
+**Resolved.** 2.1 now opens "PrintPod is a self-service printing kiosk for
+universities." The original problem is recorded below.
 2.1 opens:
 
 > "The ATM Printer is a self-service printing kiosk for universities."
@@ -540,7 +547,9 @@ Chapter 13.
 The original problem: 13.1 and 9.5 described three (UPI, campus card, wallet
 balance), while 7.5 offered the user two.
 
-### C8. 5.2 still has placeholders inside a filled table
+### C8. 5.2 had placeholders inside a filled table - FIXED (change 18)
+**Resolved.** Paper tray capacity now reads "500 sheets of 80 gsm A4", matching
+5.3. Output tray capacity is set to 250 sheets. The original problem is below.
 Two rows of the specification table read `[sheets]`:
 
 - Paper tray capacity — `[sheets]`
@@ -557,7 +566,14 @@ literal `[add rows]` row. I transferred it as it stands, placeholders included,
 since the symptoms are real content. The Markdown's own note asks for ten to
 fifteen rows.
 
-### C10. The References section opens with an instruction
+### C10. References opened with an instruction - FIXED (change 18)
+**Resolved.** The opening paragraph is removed entirely. In the closing
+paragraph only the first sentence went, because the second is a real disclaimer
+for the reader; References now ends "The projected PrintPod specifications,
+costs and case-study results are illustrative assumptions rather than facts
+established by these references."
+
+The original problem is recorded below.
 The first paragraph reads:
 
 > "Use a consistent citation style throughout the ebook. ... Add the exact
