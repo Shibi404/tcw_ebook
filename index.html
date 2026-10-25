@@ -279,7 +279,7 @@
               <tbody>
                 <tr>
                   <td>1 <strong>Upload</strong></td>
-                  <td>Sends a file to the kiosk, either by scanning the QR code on its screen or by entering a six-digit collection code for a file already uploaded from the website.</td>
+                  <td>Sends a file to the kiosk, either by scanning the QR code on its screen or, for a file already uploaded from the website, by showing the collection code to the scanner window or typing its six digits.</td>
                   <td>The file is in the system and the kiosk can show a preview of it.</td>
                 </tr>
                 <tr>
@@ -308,7 +308,7 @@
 
         <section class="sec">
           <h3>The user journey</h3>
-          <p>Take the student from Section 1.1, who needs three printed copies of a report before 9 a.m. With PrintPod her evening goes differently. She uploads the report from her hostel room on the PrintPod website and is given a six-digit collection code. She walks to the nearest kiosk and types in the code, and the report appears on screen as a preview. She checks that her tables have not moved, raises the copies to three, and watches the price change as she goes. She pays by UPI, collects three copies from the tray and leaves. By then the kiosk has already deleted her file.</p>
+          <p>Take the student from Section 1.1, who needs three printed copies of a report before 9 a.m. With PrintPod her evening goes differently. She uploads the report from her hostel room on the PrintPod website and is given a collection code. She walks to the nearest kiosk, holds the code up to the scanner window, and the report appears on screen as a preview. She checks that her tables have not moved, raises the copies to three, and watches the price change as she goes. She pays by UPI, collects three copies from the tray and leaves. By then the kiosk has already deleted her file.</p>
 
           <figure class="figure">
             <div class="figure__box" aria-hidden="true"><span class="figure__box-label">[Figure placeholder — insert diagram]</span></div>
@@ -317,7 +317,7 @@
 
           <p>The figure shows the main path across the middle and the ways out of it underneath. There are two ways to start. A user who is already at the kiosk scans the QR code on its screen with a phone and picks a file. A user who prefers to upload in advance does so from the website and brings the six-digit code (Section 6.2). Either way the file reaches the system through the web app, so every screen after that looks the same.</p>
 
-          <p>A user can leave at several points without losing anything. A file that is too large, too long or password-protected is rejected at upload and the user is not charged (Section 6.1). Tapping Cancel Job on the preview screen returns the kiosk to its start screen with nothing charged. A job that is uploaded but never paid for expires after ten minutes and is deleted (Section 6.4). Once a user has paid, the responsibility passes to the system. If the job then cannot be printed, the user is refunded under the rules in Chapter 13.</p>
+          <p>A user can leave at several points without losing anything. A file that is too large, too long or password-protected is rejected at upload and the user is not charged (Section 6.1). Tapping Cancel Job on the preview screen returns the kiosk to its start screen with nothing charged. A job that is uploaded but never paid for expires and is deleted, four hours after a website upload or ten minutes after it has been opened at a kiosk (Section 6.4). Once a user has paid, the responsibility passes to the system. If the job then cannot be printed, the user is refunded under the rules in Chapter 13.</p>
 </section>
 
         <section class="sec">
@@ -335,7 +335,7 @@
               <tbody>
                 <tr>
                   <td><strong>Upload</strong></td>
-                  <td>The user's phone opens the PrintPod web app, which sends the file to the backend. The backend checks it against the limits in Section 6.1 and converts anything that is not a PDF. It creates a job record. For a kiosk upload it links the job to that kiosk's session through the QR code, which is valid for five minutes and for that one session only. For a website upload it issues a six-digit collection code instead. It then sends a preview to the kiosk.</td>
+                  <td>The user's phone opens the PrintPod web app, which sends the file to the backend. The backend checks it against the limits in Section 6.1 and converts anything that is not a PDF. It creates a job record. For a kiosk upload it links the job to that kiosk's session through the QR code, which is valid for five minutes and for that one session only. For a website upload it issues a collection code instead, as a QR code to scan and as six digits to type. It then sends a preview to the kiosk.</td>
                 </tr>
                 <tr>
                   <td><strong>Choose</strong></td>
@@ -471,9 +471,9 @@
 
           <ul>
             <li><strong>Receiving and converting.</strong> It accepts files from the web app and checks type, size, length and password protection (Section 6.1). It converts Word, PowerPoint, text and image files to PDF and builds the preview the kiosk shows, so the user sees the converted file before paying.</li>
-            <li><strong>Pairing jobs with kiosks.</strong> It issues the QR session code, which is valid for five minutes and one session, and the six-digit collection code. Either one connects a job to the kiosk where the user is standing.</li>
+            <li><strong>Pairing jobs with kiosks.</strong> It issues the QR session code, which is valid for five minutes and one session, and the collection code for a website upload, which it returns both as a QR code and as six digits. Any of them connects a job to the kiosk where the user is standing.</li>
             <li><strong>Pricing.</strong> It applies the rate table and any concession, free quota or departmental billing set by the administrator (Sections 13.2 and 13.3), and returns the price each time a setting changes.</li>
-            <li><strong>Queues and timers.</strong> It holds each kiosk's queue and runs the expiry timers: ten minutes for an unpaid job and thirty minutes for a paid job that cannot be printed (Section 6.4).</li>
+            <li><strong>Queues and timers.</strong> It holds each kiosk's queue and runs the expiry timers: four hours for a website upload that has not yet been opened at a kiosk, ten minutes for an unpaid job once it has been opened, and thirty minutes for a paid job that cannot be printed (Section 6.4).</li>
             <li><strong>Payments.</strong> It creates payment requests with the gateway, receives the confirmations and starts refunds (Section 4.4).</li>
             <li><strong>Records.</strong> It writes every job, payment, refund and administrative action to the records, and answers the admin portal.</li>
             <li><strong>Deletion.</strong> It deletes each document within sixty seconds of the job completing (Section 6.5).</li>
@@ -494,7 +494,7 @@
                 <tr>
                   <td><strong>Documents</strong></td>
                   <td>The uploaded file and its preview</td>
-                  <td>Deleted within sixty seconds of printing, ten minutes after upload if unpaid, or thirty minutes after payment if not printed (Section 6.5)</td>
+                  <td>Deleted within sixty seconds of printing, four hours after a website upload that is never opened at a kiosk, ten minutes after a job is opened and not paid for, or thirty minutes after payment if not printed (Section 6.5)</td>
                 </tr>
                 <tr>
                   <td><strong>Transaction records</strong></td>
@@ -609,7 +609,7 @@
             </table>
           </div>
 
-          <p>A document exists in only two places during this flow: the backend's document store, from step 1, and the kiosk's spooler, from step 7. Both are cleared at step 9. A job uploaded from the website follows the same path. Only step 1 differs, because the upload happens before the user reaches the kiosk, and the six-digit collection code is entered at the kiosk in place of the QR scan.</p>
+          <p>A document exists in only two places during this flow: the backend's document store, from step 1, and the kiosk's spooler, from step 7. Both are cleared at step 9. A job uploaded from the website follows the same path. Only step 1 differs, because the upload happens before the user reaches the kiosk: rather than scanning the kiosk's QR code with a phone, the user holds their collection code up to the kiosk's scanner window, or types its six digits.</p>
 
           <h4>When a step fails</h4>
 
@@ -626,7 +626,7 @@
               <tbody>
                 <tr>
                   <td>The user uploads a file but never pays</td>
-                  <td>The job expires ten minutes after upload and the document is deleted (Section 6.4).</td>
+                  <td>The job expires and the document is deleted: four hours after a website upload that is never opened at a kiosk, ten minutes after it has been opened (Section 6.4).</td>
                 </tr>
                 <tr>
                   <td>The user cancels, or the payment is not completed</td>
@@ -803,8 +803,12 @@
                   <td>15.6 inch, 1920 × 1080, capacitive multi-touch</td>
                 </tr>
                 <tr>
+                  <td>Code scanner</td>
+                  <td>QR scanner for collection codes</td>
+                </tr>
+                <tr>
                   <td>Payment hardware</td>
-                  <td>QR scanner for UPI, NFC reader for campus cards</td>
+                  <td>NFC reader for campus cards</td>
                 </tr>
                 <tr>
                   <td>Connectivity</td>
@@ -890,7 +894,7 @@
 
           <p>At the kiosk, by QR code. The user taps Upload on the kiosk and scans the QR code shown on screen with their phone camera. The code opens the PrintPod web app in the phone's browser, already linked to that kiosk, and the user picks a file from their phone storage or from a cloud drive they are signed in to. The file appears on the kiosk screen for preview within a few seconds. The QR code is valid for five minutes and belongs to that one session, so nobody else can send a file to the kiosk while it is in use.</p>
 
-          <p>From the website, before arriving. The user opens the PrintPod web address in any browser, uploads a file and receives a six-digit collection code. Entering that code at any kiosk on campus brings the job up for preview. This is the faster route at busy times, because the upload is finished before the user reaches the queue.</p>
+          <p>From the website, before arriving. The user opens the PrintPod web address in any browser and uploads a file. The web app returns a collection code in two forms: a QR code to hold up to the scanner window on the front of any kiosk, and the same code as six digits to type in instead. Scanning is quicker and avoids mistyping, and the six digits stay available for anyone who would rather not hold up a phone. Either one brings the job up for preview, and the code works for that one job and stops working as soon as the job is collected or expires. This is the faster route at busy times, because the upload is finished before the user reaches the queue.</p>
 
           <p>What else the web app does. Besides uploading, it shows the current price list, the live status of every kiosk on campus so a user can walk to one that is free, and the user's own recent jobs with the amount paid and the refund status where a job failed. It never shows the contents of a document, and it holds no file once the job is complete, as set out in Section 6.5.</p>
         </section>
@@ -908,14 +912,14 @@
           <h3>Queue management</h3>
           <p>Each kiosk prints one job at a time and holds the rest in a queue. A user who arrives while another job is printing can still upload, preview, configure and pay, and the screen shows their position in the queue and an estimated wait in seconds. In practice a queue rarely exceeds two jobs, because a typical job finishes in well under a minute.</p>
 
-          <p>An unpaid job is held for ten minutes from upload, after which it expires and is deleted. A paid job that fails to print, because the kiosk runs out of paper for instance, is held for thirty minutes so that it can be released once the kiosk is refilled. If it cannot be printed within that window, the job is deleted and the payment is refunded automatically under the rules in Chapter 13.</p>
+          <p>A job uploaded from the website is held for four hours, so that a user can send a file from a hostel room or between lectures and still collect it on the way past. Once a job has been opened at a kiosk it is held for ten minutes, and a job uploaded at the kiosk itself is on that ten-minute timer from the start; in either case it then expires and is deleted. A paid job that fails to print, because the kiosk runs out of paper for instance, is held for thirty minutes so that it can be released once the kiosk is refilled. If it cannot be printed within that window, the job is deleted and the payment is refunded automatically under the rules in Chapter 13.</p>
         </section>
 
         <section class="sec">
           <h3>Document retention and deletion</h3>
           <p>A document is deleted within sixty seconds of its print job completing. Deletion covers both the copy held in the backend and the copy spooled to the kiosk, and it happens whether or not the user collects the printout.</p>
 
-          <p>An uploaded job that is never paid for is deleted when it expires, ten minutes after upload. A paid job that cannot be printed is deleted after thirty minutes, together with an automatic refund.</p>
+          <p>An uploaded job that is never paid for is deleted when it expires: four hours after a website upload that is never opened at a kiosk, and ten minutes after a job has been opened. A paid job that cannot be printed is deleted after thirty minutes, together with an automatic refund.</p>
 
           <p>Nothing is retained beyond these windows. The transaction record kept for billing holds the page count, the price and the timestamp, and does not hold the document, its file name or its contents. Chapter 10 sets out how files are protected while they are held.</p>
         </section>
@@ -924,7 +928,7 @@
           <h3>Accessibility features</h3>
           <p>The kiosk is designed to be usable by a seated wheelchair user. The touchscreen is mounted at 1,050 mm and tilted fifteen degrees upward, the output tray sits at 800 mm, and every control the user needs falls within a 1,200 mm reach from the front of the unit.</p>
 
-          <p>On screen, the interface offers three text sizes and a high-contrast mode, both reachable from an accessibility button present on every screen. The interface is available in English, Hindi and Malayalam, selected at the start of a session and reset when the session ends. Audio prompts can be enabled to read each screen aloud through a 3.5 mm headphone socket below the card reader, so a visually impaired user can work through the flow without a sighted assistant.</p>
+          <p>On screen, the interface offers three text sizes and a high-contrast mode, both reachable from an accessibility button present on every screen. The interface is available in English, Hindi and Malayalam, selected at the start of a session and reset when the session ends. Audio prompts can be enabled to read each screen aloud through a 3.5 mm headphone socket below the card reader, so a visually impaired user can work through the flow without a sighted assistant. A collection code can always be typed as six digits instead of being scanned, so a user who cannot aim a phone at the scanner window is not shut out of the website route.</p>
 
           <p>No setting persists between sessions, because the kiosk holds no user accounts. Each user chooses what they need at the start of their own session.</p>
         </section>
@@ -967,10 +971,10 @@
           <h3>Step 1 Upload your document</h3>
           <ol>
             <li>Tap <strong>Print Document</strong> on the kiosk main touch screen.</li>
-            <li>Select your preferred upload method from the on-screen menu: <strong>Scan QR Code</strong> (Phone), <strong>USB Drive</strong>, <strong>Email</strong>, or <strong>Web Code</strong>.</li>
+            <li>Select your preferred upload method from the on-screen menu: <strong>Scan QR Code</strong> (Phone), <strong>USB Drive</strong>, <strong>Email</strong>, or <strong>Collection Code</strong>.</li>
             <li>Scan the displayed QR code with your phone camera if choosing phone upload, and select your file on your mobile screen.</li>
             <li>Insert your flash drive into the USB port below the touch screen if using USB upload, and tap your file name on screen.</li>
-            <li>Enter the 6-digit claim code on the touch screen if you submitted your file via email or web upload prior to arrival.</li>
+            <li>Hold your collection QR code up to the scanner window below the touch screen if you uploaded your file before arriving, or tap <strong>Enter code</strong> and type the six digits instead.</li>
             <li>Wait for the kiosk to complete file processing and transfer to the preview screen.</li>
           </ol>
 
@@ -1632,6 +1636,11 @@
                   <td>☐</td>
                 </tr>
                 <tr>
+                  <td>Collect a job uploaded from the website</td>
+                  <td>Scanning the collection code at the kiosk brings up the right job, and typing its six digits does the same.</td>
+                  <td>☐</td>
+                </tr>
+                <tr>
                   <td>Status check</td>
                   <td>The portal state and the kiosk's own status light agree in each of four conditions: ready, low paper, out of paper and offline.</td>
                   <td>☐</td>
@@ -1668,7 +1677,7 @@
 
         <section class="sec">
           <h3>Document security</h3>
-          <p>User documents are protected during three stages: uploading, storage and printing. Documents are used only for the printing process. After printing, they are deleted to protect user privacy.</p>
+          <p>User documents are protected during three stages: uploading, storage and printing. Documents are used only for the printing process. After printing, they are deleted to protect user privacy. A collection code, whether scanned or typed, works for one job only and stops working once that job is collected or expires, so a code that someone else has seen cannot be used to claim a document.</p>
 </section>
 
         <section class="sec">

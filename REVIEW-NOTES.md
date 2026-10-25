@@ -29,6 +29,7 @@ item is for the team to decide.
 | 8 | Filled About the team with the **seven** members' names and roll numbers, and removed that section's guidance note | About the team |
 | 9 | Filled the **Authors** line with the seven names | Document information |
 | 10 | Added **Figure 5.1**, a labelled front elevation of the kiosk drawn as inline SVG | 5.1 The kiosk unit |
+| 11 | Gave the QR scanner a purpose (collection by scanned code) and split the unpaid-job expiry timer | 3.1, 3.2, 3.3, 4.3, 4.6, 5.2, 6.2, 6.4, 6.5, 6.6, 7.2, 9.5, 10.1 |
 
 Consequences worth noting:
 
@@ -97,6 +98,48 @@ skeleton set for them ("Every claim here must be specific... name the mechanism
 and the timing"). 10.2 also no longer states the retention rule as a number,
 which 6.5 and the old guidance note both required it to match. Nothing was
 changed; flagging it as a drafting gap.
+
+## 0c. Change 11 in detail - the collection QR code
+
+**The problem.** The specification listed a QR *scanner* on the front of the
+kiosk (5.1, 5.2) but nothing in the ebook ever asked the kiosk to read a QR
+code. Every QR flow ran the other way: the kiosk displays a code and the user's
+phone camera reads it, for upload (6.2) and for UPI payment (4.2, 7.5). The
+scanner was unused hardware.
+
+**The fix.** A job uploaded from the website now returns a collection code in
+two forms - a QR code to hold up to the scanner window, and the same code as six
+digits to type. That gives the scanner a job and makes collection quicker.
+
+**A second contradiction this exposed, now also fixed.** 6.4 said an unpaid job
+was "held for ten minutes from upload", while the entire point of the website
+route (6.2) and the narrative in 3.2 is uploading *before* walking to a kiosk.
+Ten minutes to cross campus, queue, preview and pay is often impossible, so as
+written the headline feature deleted the file before the user arrived. The timer
+is now split:
+
+| Stage | Held for |
+| --- | --- |
+| Uploaded from the website, not yet opened at a kiosk | four hours |
+| Opened at a kiosk and not yet paid for | ten minutes |
+| Uploaded at the kiosk itself | ten minutes from the start |
+| Paid for but cannot be printed | thirty minutes |
+
+The four-hour figure was chosen to cover an upload between lectures while
+keeping the retention window short enough to defend in Chapter 10. It is
+repeated consistently in 3.2, 4.3 (twice), 4.6, 6.4 and 6.5.
+
+**Other wording touched:** 5.2 now has a separate *Code scanner* row and the
+*Payment hardware* row lists the NFC reader only; 7.2's menu item is
+**Collection Code** rather than Web Code and its step 5 describes scanning with
+typing as the alternative; 6.6 records that the six digits remain for a user who
+cannot aim a phone at the scanner; 10.1 states that a collection code is
+single-use; and 9.5 gains an acceptance test for collecting a website upload.
+
+**Still open, and deliberately untouched:** 6.2 continues to say there are
+**two** upload routes and that the kiosk "has no USB port and no inbox", while
+7.1 and 7.2 still describe USB and email upload (item C1 below). Change 11 did
+not touch that contradiction.
 
 Still unfilled in the webpage: `[Version number]`, `[Date of this revision]`,
 `[email address]` and `[Draft, under review or final]` in Document information,
