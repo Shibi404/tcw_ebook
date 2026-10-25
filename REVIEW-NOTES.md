@@ -37,6 +37,7 @@ item is for the team to decide.
 | 16 | 5.3's consumable life recomputed, since it follows from Chapter 14's volume | 5.3 |
 | 17 | Outright errors corrected and terminology normalised to one house style | 1.1, 7.1-7.5, 7.7, 8.5, 8.7, 9.5, 14.2 |
 | 18 | "ATM Printer" renamed, 5.2 tray capacities filled, notes-to-self cut from References, Document information completed | 2.1, 5.2, References, Document information |
+| 19 | Three paragraphs lost a stray whole-paragraph italic wrapper left by the Markdown transfer | 8.1 (twice), 8.7 |
 
 Consequences worth noting:
 
@@ -322,6 +323,11 @@ it is italic, not bold, which suggests you also think of it as body text.
 
 **No words were changed by this.** Inline emphasis *inside* a paragraph was kept
 as `<em>`. If you want the italics back, say so and I will restore them.
+
+**Correction (change 19).** Three paragraphs slipped through this and kept their
+italic wrapper: two in 8.1 and one in 8.7. They contained bold runs, which made
+my italic-detection skip them. They are now plain body text like the rest, and
+the missing full stop at the end of the 8.7 one was added at the same time.
 
 ### D2. 8.7 has a heading level the skeleton does not have
 The Markdown puts two sub-headings one level below 8.7:
