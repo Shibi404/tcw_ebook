@@ -30,6 +30,7 @@ item is for the team to decide.
 | 9 | Filled the **Authors** line with the seven names | Document information |
 | 10 | Added **Figure 5.1**, a labelled front elevation of the kiosk drawn as inline SVG | 5.1 The kiosk unit |
 | 11 | Gave the QR scanner a purpose (collection by scanned code) and split the unpaid-job expiry timer | 3.1, 3.2, 3.3, 4.3, 4.6, 5.2, 6.2, 6.4, 6.5, 6.6, 7.2, 9.5, 10.1 |
+| 12 | Removed USB and email upload from Chapter 7, so it agrees with the architecture | 7.1, 7.2 |
 
 Consequences worth noting:
 
@@ -420,7 +421,20 @@ the webpage. Worth deleting from the Markdown before submission.
 
 Nothing below was changed. Listed roughly by how much it matters.
 
-### C1. 6.2 and Chapter 7 contradict each other about USB
+### C1. 6.2 and Chapter 7 contradicted each other about USB - FIXED (change 12)
+**Resolved.** USB and email upload have been removed from 7.1 and 7.2, so the
+user guide now describes the same two routes as 6.2: scanning the kiosk's QR
+code with a phone, and presenting a collection code from a website upload.
+
+The fix went this way round because "no USB port and no inbox" is load-bearing
+elsewhere - it is one of only three named design decisions in 4.1, it is what
+makes every file checked and logged (requirement R5), and a USB socket on an
+unattended kiosk is a genuine security liability. Supporting it instead would
+have meant rewriting 4.1, 4.2, 5.1, 5.2, 6.2, Figure 5.1 and Chapter 10, and
+throwing away a good argument.
+
+The original problem is recorded below.
+
 **6.2** says there are **two** upload routes and that:
 
 > "the kiosk itself never accepts a file directly. There is no USB port and no
@@ -434,7 +448,7 @@ methods — Scan QR Code, USB Drive, Email, Web Code — including:
 > "Insert your flash drive into the USB port below the touch screen if using USB
 > upload, and tap your file name on screen."
 
-One of these has to go. It also affects 5.1, which lists the front-face
+One of these had to go. It also affected 5.1, which lists the front-face
 components without a USB port.
 
 ### C2. The product is called something else in 2.1
