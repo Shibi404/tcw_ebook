@@ -33,6 +33,8 @@ item is for the team to decide.
 | 12 | Removed USB and email upload from Chapter 7, so it agrees with the architecture | 7.1, 7.2 |
 | 13 | Payment methods cut to **UPI and campus card**; wallet balance removed throughout | 3.1, 4.4, 8.7, 9.5, 13.1, 13.4, Glossary |
 | 14 | A paid job that cannot be printed is now held **ten minutes**, not thirty | 4.3, 4.6, 6.4, 6.5 |
+| 15 | Chapter 14 recomputed on the team's figures: **500 pages/day at ₹2/page**, low-usage case 250/day | 14.1, 14.4, 14.5 |
+| 16 | 5.3's consumable life recomputed, since it follows from Chapter 14's volume | 5.3 |
 
 Consequences worth noting:
 
@@ -477,7 +479,38 @@ One style point left alone: Chapter 8 writes "10 minutes" in numerals while
 Chapters 3, 4 and 6 spell out "ten minutes". The two now state the same rule
 in different styles.
 
-### C4. The revenue figure in 14.5 does not follow from 14.1 and 14.4
+### C4, C5, C6. Chapter 14's arithmetic - FIXED (change 15)
+**Resolved.** The team set the assumptions at **500 pages per kiosk per day at
+₹2 per page over 300 operating days**, and the stress test at 250 pages per day.
+Every figure in 14.4 and 14.5 was recomputed from those:
+
+| | Was | Now |
+| --- | --- | --- |
+| Daily revenue per kiosk | ₹750 | ₹1,000 |
+| Annual revenue per kiosk | ₹2,25,000 | ₹3,00,000 |
+| Annual revenue, two kiosks | ₹4,50,000 | ₹6,00,000 |
+| Annual surplus, two kiosks | ₹2,58,000 | ₹4,08,000 |
+| Monthly revenue per kiosk | ₹37,500 (wrong) | ₹25,000 over 25 operating days |
+| Monthly surplus per kiosk | ₹29,500 | ₹17,000 |
+| Break-even | 2.5 months | 4.4 months |
+| Stress test | 100 pages/day, 30-day month | 250 pages/day, 25-day month |
+| Stress-test result | "only ₹1,000 remains" | ₹4,500/month, break-even ~17 months |
+
+C6 resolves itself: ₹2 is exactly 13.2's black-and-white A4 rate, so the average
+no longer needs an unstated colour mix to justify it. One caveat worth knowing:
+13.2 also gives a 10 per cent double-sided discount, and 6.3 makes double-sided
+the default, so a strict average would be a little under ₹2. The team's ₹2 is a
+deliberate round figure.
+
+5.3's consumable figures follow from this volume and were recomputed with it
+(change 16): toner life from "about three weeks" to about twelve days, and the
+low-toner warning from "several days" to nearly two. The paper tray still empties
+roughly every two days, but only because double-sided is the default, which 5.3
+now says explicitly.
+
+The original problem is recorded below.
+
+### C4. The revenue figure in 14.5 did not follow from 14.1 and 14.4
 - **14.1** assumes 250 pages per kiosk per day, ₹3 per page, **300 operating days per year**.
 - **14.4** works that through correctly: ₹750 a day, ₹2,25,000 a year per kiosk.
 - **14.5** then says "the monthly revenue is ₹37,500 per kiosk".
