@@ -22,10 +22,12 @@ item is for the team to decide.
 | 1 | `[Institution name]` / `[institution name]` replaced with **Amrita Vishwa Vidyapeetham** | Title page, Copyright and disclaimer, Document information (3 places) |
 | 2 | Removed the sentence "For questions about this document, contact [email address]." | Copyright and disclaimer |
 | 3 | About the team table columns changed from *Member / Role / Contribution* to **Name / Roll no** | About the team |
-| 4 | About the team reduced from 7 placeholder rows to **3**, for a team of three | About the team |
+| 4 | About the team reduced to 3 placeholder rows — **reverted by change 8**; "Team is 3" meant the team is *named* Team 3, not that it has three members | About the team |
 | 5 | `[Team name]` in the copyright line replaced with **Team 3** | Copyright and disclaimer |
 | 6 | Removed the Figure 5.1 placeholder (the labelled kiosk drawing) | 5.1 The kiosk unit |
 | 7 | Added the content of `PrintPod_Updated.pdf` | Chapters 3, 4, 10, 11, 12 (22 sections + 3 chapter intros) |
+| 8 | Filled About the team with the **seven** members' names and roll numbers, and removed that section's guidance note | About the team |
+| 9 | Filled the **Authors** line with the seven names | Document information |
 
 Consequences worth noting:
 
@@ -95,9 +97,9 @@ and the timing"). 10.2 also no longer states the retention rule as a number,
 which 6.5 and the old guidance note both required it to match. Nothing was
 changed; flagging it as a drafting gap.
 
-Still unfilled in the webpage: `[Team member names]` in Document information,
-the `[Team member name]` / `[Roll no]` cells in About the team, section 12.3,
-and the chapter introductions for 1-6, 13, 14 and 16.
+Still unfilled in the webpage: `[Version number]`, `[Date of this revision]`,
+`[email address]` and `[Draft, under review or final]` in Document information,
+section 12.3, and the chapter introductions for 1-6, 13, 14 and 16.
 
 ---
 
