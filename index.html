@@ -473,7 +473,7 @@
             <li><strong>Receiving and converting.</strong> It accepts files from the web app and checks type, size, length and password protection (Section 6.1). It converts Word, PowerPoint, text and image files to PDF and builds the preview the kiosk shows, so the user sees the converted file before paying.</li>
             <li><strong>Pairing jobs with kiosks.</strong> It issues the QR session code, which is valid for five minutes and one session, and the collection code for a website upload, which it returns both as a QR code and as six digits. Any of them connects a job to the kiosk where the user is standing.</li>
             <li><strong>Pricing.</strong> It applies the rate table and any concession, free quota or departmental billing set by the administrator (Sections 13.2 and 13.3), and returns the price each time a setting changes.</li>
-            <li><strong>Queues and timers.</strong> It holds each kiosk's queue and runs the expiry timers: four hours for a website upload that has not yet been opened at a kiosk, ten minutes for an unpaid job once it has been opened, and thirty minutes for a paid job that cannot be printed (Section 6.4).</li>
+            <li><strong>Queues and timers.</strong> It holds each kiosk's queue and runs the expiry timers: four hours for a website upload that has not yet been opened at a kiosk, ten minutes for an unpaid job once it has been opened, and ten minutes again for a paid job that cannot be printed (Section 6.4).</li>
             <li><strong>Payments.</strong> It creates payment requests with the gateway, receives the confirmations and starts refunds (Section 4.4).</li>
             <li><strong>Records.</strong> It writes every job, payment, refund and administrative action to the records, and answers the admin portal.</li>
             <li><strong>Deletion.</strong> It deletes each document within sixty seconds of the job completing (Section 6.5).</li>
@@ -494,7 +494,7 @@
                 <tr>
                   <td><strong>Documents</strong></td>
                   <td>The uploaded file and its preview</td>
-                  <td>Deleted within sixty seconds of printing, four hours after a website upload that is never opened at a kiosk, ten minutes after a job is opened and not paid for, or thirty minutes after payment if not printed (Section 6.5)</td>
+                  <td>Deleted within sixty seconds of printing, four hours after a website upload that is never opened at a kiosk, ten minutes after a job is opened and not paid for, or ten minutes after payment if not printed (Section 6.5)</td>
                 </tr>
                 <tr>
                   <td><strong>Transaction records</strong></td>
@@ -638,7 +638,7 @@
                 </tr>
                 <tr>
                   <td>The printer fails after payment, for example a jam or no paper</td>
-                  <td>The job is held for thirty minutes so it can be released after the fault is fixed. If it still cannot be printed, it is deleted and the payment is refunded. If it stopped part-way, the pages not printed are refunded (Chapter 13).</td>
+                  <td>The job is held for ten minutes so it can be released after the fault is fixed. If it still cannot be printed, it is deleted and the payment is refunded. If it stopped part-way, the pages not printed are refunded (Chapter 13).</td>
                 </tr>
                 <tr>
                   <td>The same job is paid for twice</td>
@@ -912,14 +912,14 @@
           <h3>Queue management</h3>
           <p>Each kiosk prints one job at a time and holds the rest in a queue. A user who arrives while another job is printing can still upload, preview, configure and pay, and the screen shows their position in the queue and an estimated wait in seconds. In practice a queue rarely exceeds two jobs, because a typical job finishes in well under a minute.</p>
 
-          <p>A job uploaded from the website is held for four hours, so that a user can send a file from a hostel room or between lectures and still collect it on the way past. Once a job has been opened at a kiosk it is held for ten minutes, and a job uploaded at the kiosk itself is on that ten-minute timer from the start; in either case it then expires and is deleted. A paid job that fails to print, because the kiosk runs out of paper for instance, is held for thirty minutes so that it can be released once the kiosk is refilled. If it cannot be printed within that window, the job is deleted and the payment is refunded automatically under the rules in Chapter 13.</p>
+          <p>A job uploaded from the website is held for four hours, so that a user can send a file from a hostel room or between lectures and still collect it on the way past. Once a job has been opened at a kiosk it is held for ten minutes, and a job uploaded at the kiosk itself is on that ten-minute timer from the start; in either case it then expires and is deleted. A paid job that fails to print, because the kiosk runs out of paper for instance, is held for ten minutes so that it can be released once the kiosk is refilled. If it cannot be printed within that window, the job is deleted and the payment is refunded automatically under the rules in Chapter 13.</p>
         </section>
 
         <section class="sec">
           <h3>Document retention and deletion</h3>
           <p>A document is deleted within sixty seconds of its print job completing. Deletion covers both the copy held in the backend and the copy spooled to the kiosk, and it happens whether or not the user collects the printout.</p>
 
-          <p>An uploaded job that is never paid for is deleted when it expires: four hours after a website upload that is never opened at a kiosk, and ten minutes after a job has been opened. A paid job that cannot be printed is deleted after thirty minutes, together with an automatic refund.</p>
+          <p>An uploaded job that is never paid for is deleted when it expires: four hours after a website upload that is never opened at a kiosk, and ten minutes after a job has been opened. A paid job that cannot be printed is deleted after ten minutes, together with an automatic refund.</p>
 
           <p>Nothing is retained beyond these windows. The transaction record kept for billing holds the page count, the price and the timestamp, and does not hold the document, its file name or its contents. Chapter 10 sets out how files are protected while they are held.</p>
         </section>

@@ -32,6 +32,7 @@ item is for the team to decide.
 | 11 | Gave the QR scanner a purpose (collection by scanned code) and split the unpaid-job expiry timer | 3.1, 3.2, 3.3, 4.3, 4.6, 5.2, 6.2, 6.4, 6.5, 6.6, 7.2, 9.5, 10.1 |
 | 12 | Removed USB and email upload from Chapter 7, so it agrees with the architecture | 7.1, 7.2 |
 | 13 | Payment methods cut to **UPI and campus card**; wallet balance removed throughout | 3.1, 4.4, 8.7, 9.5, 13.1, 13.4, Glossary |
+| 14 | A paid job that cannot be printed is now held **ten minutes**, not thirty | 4.3, 4.6, 6.4, 6.5 |
 
 Consequences worth noting:
 
@@ -460,13 +461,21 @@ components without a USB port.
 Every other section calls it PrintPod. 2.1 is the section that defines what the
 product *is*, so this is a conspicuous place for the wrong name.
 
-### C3. How long a failed job is held — 30 minutes or 10?
+### C3. How long a failed job is held — FIXED (change 14)
+**Resolved as ten minutes**, on the team's decision. 6.4, 6.5, 4.3 and 4.6 now
+say ten, matching what 8.6 and the refund table in 8.7 always said. The original
+problem is recorded below.
+
 - **6.4**: "A paid job that fails to print ... is held for thirty minutes so that it can be released once the kiosk is refilled."
 - **6.5**: "A paid job that cannot be printed is deleted after thirty minutes."
 - **8.6**: "If the tray is not refilled within 10 minutes, the job is cancelled and the user is refunded."
 - **8.7**, automatic refunds table: "A job stops part-way and is not finished within 10 minutes".
 
-Chapter 6 says thirty minutes; Chapter 8 says ten, twice.
+Chapter 6 said thirty minutes; Chapter 8 said ten, twice.
+
+One style point left alone: Chapter 8 writes "10 minutes" in numerals while
+Chapters 3, 4 and 6 spell out "ten minutes". The two now state the same rule
+in different styles.
 
 ### C4. The revenue figure in 14.5 does not follow from 14.1 and 14.4
 - **14.1** assumes 250 pages per kiosk per day, ₹3 per page, **300 operating days per year**.
