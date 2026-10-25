@@ -35,6 +35,7 @@ item is for the team to decide.
 | 14 | A paid job that cannot be printed is now held **ten minutes**, not thirty | 4.3, 4.6, 6.4, 6.5 |
 | 15 | Chapter 14 recomputed on the team's figures: **500 pages/day at ₹2/page**, low-usage case 250/day | 14.1, 14.4, 14.5 |
 | 16 | 5.3's consumable life recomputed, since it follows from Chapter 14's volume | 5.3 |
+| 17 | Outright errors corrected and terminology normalised to one house style | 1.1, 7.1-7.5, 7.7, 8.5, 8.7, 9.5, 14.2 |
 
 Consequences worth noting:
 
@@ -566,7 +567,9 @@ That is addressed to the team, not the reader, but it is not bracketed, so by
 the rule we agreed it counts as content and was transferred. The closing
 paragraph has the same problem.
 
-### C11. Grammar, punctuation and typography
+### C11. Grammar, punctuation and typography - FIXED (change 17)
+**Resolved**, except the last row, which is a Markdown-only artefact and does
+not appear in the webpage. Everything below was corrected.
 | Where | What I noticed |
 | --- | --- |
 | 7.1 | "**A** active UPI app on your smartphone" — should be "An" |
@@ -579,7 +582,14 @@ paragraph has the same problem.
 | 14.2 | The total cell is written `*₹*75,000` — the italics wrap only the rupee sign, unlike every other cell |
 | 7.2–7.6 | Steps are written "**1\.**Tap ..." with no space after the number. Harmless here because the webpage numbers the list itself, but it will show if the Markdown is submitted |
 
-### C12. Terminology drift between chapters
+### C12. Terminology drift between chapters - FIXED (change 17)
+**Resolved.** House style is now: **touchscreen** (one word), **colour** and
+**Colour Mode** (British spelling, Title Case for on-screen controls),
+**collection code** throughout, and **campus card** in prose with **Campus
+Card** kept only as the bolded on-screen button in 7.5. "student ID card" in
+7.1 became "campus card", and "center" became "centre".
+
+The original list is recorded below.
 - "touch screen" (7.2, 7.4) vs "touchscreen" (5.1, 5.2, 9.3, 11 notes)
 - "Black & White" (7.4) vs "black and white" (2.2, 13.2) vs "monochrome" (5.2, 6.3)
 - "claim code" (7.2, 7.7) vs "collection code" (6.2) vs "6-digit claim code" / "six-digit collection code"
