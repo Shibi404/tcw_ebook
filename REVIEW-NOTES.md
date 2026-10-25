@@ -31,6 +31,7 @@ item is for the team to decide.
 | 10 | Added **Figure 5.1**, a labelled front elevation of the kiosk drawn as inline SVG | 5.1 The kiosk unit |
 | 11 | Gave the QR scanner a purpose (collection by scanned code) and split the unpaid-job expiry timer | 3.1, 3.2, 3.3, 4.3, 4.6, 5.2, 6.2, 6.4, 6.5, 6.6, 7.2, 9.5, 10.1 |
 | 12 | Removed USB and email upload from Chapter 7, so it agrees with the architecture | 7.1, 7.2 |
+| 13 | Payment methods cut to **UPI and campus card**; wallet balance removed throughout | 3.1, 4.4, 8.7, 9.5, 13.1, 13.4, Glossary |
 
 Consequences worth noting:
 
@@ -487,9 +488,14 @@ same basis.
 at ₹2, which is the ordinary case for student printing, with colour A4 at ₹10.
 ₹3 is reachable, but only with a particular colour mix, and nothing states it.
 
-### C7. Payment methods: three or two?
-13.1 and 9.5 describe three (UPI, campus card, wallet balance). 7.5 offers the
-user two: "Choose your payment type by tapping **UPI** or **Campus Card**".
+### C7. Payment methods: three or two — FIXED (change 13)
+**Resolved as two**, on the team's decision: UPI and campus card. Wallet balance
+is gone from 13.1 (now "two digital payment methods"), 3.1, 4.4, 8.7, 13.4, the
+acceptance test in 9.5 and the Glossary, so Chapter 7 no longer disagrees with
+Chapter 13.
+
+The original problem: 13.1 and 9.5 described three (UPI, campus card, wallet
+balance), while 7.5 offered the user two.
 
 ### C8. 5.2 still has placeholders inside a filled table
 Two rows of the specification table read `[sheets]`:

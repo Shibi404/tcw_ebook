@@ -289,7 +289,7 @@
                 </tr>
                 <tr>
                   <td>3 <strong>Pay</strong></td>
-                  <td>Pays on the kiosk screen by UPI, campus card or wallet balance.</td>
+                  <td>Pays on the kiosk screen by UPI or campus card.</td>
                   <td>The payment is confirmed. Printing cannot start before this.</td>
                 </tr>
                 <tr>
@@ -515,13 +515,13 @@
 
         <section class="sec">
           <h3>The payment gateway</h3>
-          <p>The payment gateway is a third-party service, contracted by the institution (the merchant account in Section 9.2), that handles all money in PrintPod. It supports UPI, campus cards and wallet balances (Section 13.1). PrintPod gives it the amount for a job and takes back only the result.</p>
+          <p>The payment gateway is a third-party service, contracted by the institution (the merchant account in Section 9.2), that handles all money in PrintPod. It supports UPI and campus cards (Section 13.1). PrintPod gives it the amount for a job and takes back only the result.</p>
 
           <p><strong>How a payment is confirmed.</strong> The backend creates a payment request with the gateway for the exact amount, tied to one job. The kiosk shows it as a dynamic QR code, or waits for a campus-card tap. When the user approves, the gateway sends its confirmation to the backend. The backend marks the job as paid on that message and no other, and only then releases the job to print. PrintPod does not act on what a user's phone shows, because only the gateway can say that the money has moved.</p>
 
           <p><strong>Why the gateway handles it all.</strong> The kiosk and the backend hold no bank or card credentials, so there are none to lose if either is compromised (Section 10.3). Each payment is also tied to one job, which is how a second payment for the same job is recognised and refunded.</p>
 
-          <p><strong>How refunds work.</strong> A refund is a request from the backend to the gateway, and it goes back to the original payment method. The backend sends one automatically when a paid job fails: the full amount if no page was delivered, the amount for the unprinted pages if the job stopped part-way, and the second payment if a job was paid for twice (Section 8.7). Wallet and campus-card refunds are credited within minutes. A UPI refund is sent back to the payer's bank straight away, and how soon it appears depends on the bank.</p>
+          <p><strong>How refunds work.</strong> A refund is a request from the backend to the gateway, and it goes back to the original payment method. The backend sends one automatically when a paid job fails: the full amount if no page was delivered, the amount for the unprinted pages if the job stopped part-way, and the second payment if a job was paid for twice (Section 8.7). A campus-card refund is credited within minutes. A UPI refund is sent back to the payer's bank straight away, and how soon it appears depends on the bank.</p>
 
           <p><strong>When the connection is lost.</strong> If the kiosk cannot reach the backend, it cannot get a confirmation, so it does not ask for payment at all and shows an unavailable message (Section 8.3). A user is never charged for a job that cannot start.</p>
 
@@ -1341,7 +1341,7 @@
             </table>
           </div>
 
-          <p>Refunds to a wallet balance or campus card are credited within minutes of the failure being recorded. A UPI refund is sent back to the payer's bank account straight away, but how soon it appears depends on the bank. The Reserve Bank of India's September 2019 circular on failed transactions allows up to five days (T+5) for a UPI payment to a merchant that was not confirmed, so ask students to allow that long before they chase it.</p>
+          <p>A refund to a campus card is credited within minutes of the failure being recorded. A UPI refund is sent back to the payer's bank account straight away, but how soon it appears depends on the bank. The Reserve Bank of India's September 2019 circular on failed transactions allows up to five days (T+5) for a UPI payment to a merchant that was not confirmed, so ask students to allow that long before they chase it.</p>
 
           <h4>When a student reports a problem</h4>
 
@@ -1605,11 +1605,6 @@
                   <td>☐</td>
                 </tr>
                 <tr>
-                  <td>Pay from a wallet balance</td>
-                  <td>The balance falls by exactly the price shown.</td>
-                  <td>☐</td>
-                </tr>
-                <tr>
                   <td>Deliberate payment failure (cancel the UPI payment on the phone)</td>
                   <td>The kiosk says payment was not completed. Nothing prints and no money is taken.</td>
                   <td>☐</td>
@@ -1850,13 +1845,12 @@
 
         <section class="sec">
           <h3>Accepted payment methods</h3>
-          <p>PrintPod supports three digital payment methods.</p>
+          <p>PrintPod supports two digital payment methods.</p>
 
           <p>UPI: Students can scan a QR code using a UPI application and approve the payment. The kiosk starts printing only after payment confirmation.</p>
 
           <p>Campus card: Students can pay using an enabled campus card linked to their account. The payment amount is deducted after successful authorisation.</p>
 
-          <p>Wallet balance: Students can use their available digital wallet balance to pay for printing. The balance is updated after the transaction is confirmed.</p>
         </section>
 
         <section class="sec">
@@ -1907,7 +1901,7 @@
           <h3>Failed jobs and refunds</h3>
           <p>PrintPod initiates printing only after payment confirmation. If a job fails before any page is delivered, the full amount is refunded automatically. If printing stops part-way, the user receives a refund for the pages that were not printed. Duplicate payments are also refunded.</p>
 
-          <p>Wallet and campus-card refunds are credited within minutes of the failure being recorded. UPI refunds are returned to the original bank account, although the time taken to appear depends on the bank. If the refund does not arrive, the student can contact the campus operator with the transaction reference.</p>
+          <p>Campus-card refunds are credited within minutes of the failure being recorded. UPI refunds are returned to the original bank account, although the time taken to appear depends on the bank. If the refund does not arrive, the student can contact the campus operator with the transaction reference.</p>
         </section>
 
         <section class="sec">
@@ -2290,10 +2284,6 @@
               <tr>
                 <td>Uptime</td>
                 <td>The amount or proportion of time a system remains operational and available.</td>
-              </tr>
-              <tr>
-                <td>Wallet balance</td>
-                <td>The amount of money available in a digital wallet for making payments.</td>
               </tr>
             </tbody>
           </table>
