@@ -28,6 +28,7 @@ item is for the team to decide.
 | 7 | Added the content of `PrintPod_Updated.pdf` | Chapters 3, 4, 10, 11, 12 (22 sections + 3 chapter intros) |
 | 8 | Filled About the team with the **seven** members' names and roll numbers, and removed that section's guidance note | About the team |
 | 9 | Filled the **Authors** line with the seven names | Document information |
+| 10 | Added **Figure 5.1**, a labelled front elevation of the kiosk drawn as inline SVG | 5.1 The kiosk unit |
 
 Consequences worth noting:
 
